@@ -29,3 +29,61 @@ void i2c1_init()
 
 	I2C_Cmd(I2C1, ENABLE);
 }
+
+void i2c_read_start(I2C_TypeDef* i2c_channel, uint8_t device_address)
+{
+	while(I2C_GetFlagStatus(i2c_channel, I2C_FLAG_BUSY));
+
+	I2C_GenerateSTART(i2c_channel, ENABLE);
+
+	while(!I2C_CheckEvent(i2c_channel, I2C_EVENT_MASTER_MODE_SELECT));
+
+	I2C_Send7bitAddress(i2c_channel, device_address, I2C_Direction_Receiver);
+
+	while(!I2C_CheckEvent(i2c_channel, I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED));	
+}
+
+void i2c_write_start(I2C_TypeDef* i2c_channel, uint8_t device_address)
+{
+	while(I2C_GetFlagStatus(i2c_channel, I2C_FLAG_BUSY));
+
+	I2C_GenerateSTART(i2c_channel, ENABLE);
+
+	while(!I2C_CheckEvent(i2c_channel, I2C_EVENT_MASTER_MODE_SELECT));
+
+	I2C_Send7bitAddress(i2c_channel, device_address, I2C_Direction_Transmitter);
+
+	while(!I2C_CheckEvent(i2c_channel, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
+}
+
+void i2c_stop(I2C_TypeDef* i2c_channel)
+{
+	I2C_GenerateSTOP(i2c_channel, ENABLE);
+}
+
+void i2c_write(I2C_TypeDef* i2c_channel, uint8_t data)
+{
+	I2C_SendData(i2c_channel, data);
+
+	while(!I2C_CheckEvent(i2c_channel, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+}
+
+uint8_t i2c_read_ack(I2C_TypeDef* i2c_channel)
+{
+	I2C_AcknowledgeConfig(i2c_channel, ENABLE);
+
+	while(!I2C_CheckEvent(i2c_channel, I2C_EVENT_MASTER_BYTE_RECEIVED));
+
+	return I2C_ReceiveData(i2c_channel);
+}
+
+uint8_t i2c_read_nack(I2C_TypeDef* i2c_channel)
+{
+	I2C_AcknowledgeConfig(i2c_channel, DISABLE);
+
+	I2C_GenerateSTOP(i2c_channel, ENABLE);
+
+	while(!I2C_CheckEvent(i2c_channel, I2C_EVENT_MASTER_BYTE_RECEIVED));
+
+	return I2C_ReceiveData(i2c_channel);
+}
