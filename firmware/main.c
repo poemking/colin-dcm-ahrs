@@ -7,9 +7,14 @@
 #include "usart.h"
 #include "i2c.h"
 
+#include "mpu6050.h"
+
 void ahrs_task()
 {
-	while(1);
+	while(1) {
+		uint8_t mpu6050_test_data = mpu6050_read_who_am_i();
+		printf("MPU6050 Who am I: %d\n", mpu6050_test_data);
+	}
 }
 
 int main()
