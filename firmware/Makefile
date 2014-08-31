@@ -116,7 +116,7 @@ flash:
 	st-flash write $(BIN_IMAGE) 0x8000000
 
 #Make openocd
-openocd: flash
+openocd:
 	openocd -s /opt/openocd/share/openocd/scripts/ -f ./debug/openocd.cfg
 
 #Make cgdb
