@@ -78,7 +78,8 @@ SRC+=$(COMMON)/stdlib.c \
 	$(COMMON)/string.c
 
 CFLAGS+=-I$(DRIVER)/peripheral/
-SRC+=$(DRIVER)/peripheral/usart.c
+SRC+=$(DRIVER)/peripheral/usart.c \
+	$(DRIVER)/peripheral/i2c.c
 
 SRC+=./main.c
 
