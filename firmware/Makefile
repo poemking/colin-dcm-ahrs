@@ -77,8 +77,8 @@ CFLAGS+=-I$(COMMON)
 SRC+=$(COMMON)/stdlib.c \
 	$(COMMON)/string.c
 
-CFLAGS+=-I$(DRIVER)
-SRC+=$(DRIVER)/usart.c
+CFLAGS+=-I$(DRIVER)/peripheral/
+SRC+=$(DRIVER)/peripheral/usart.c
 
 SRC+=./main.c
 
