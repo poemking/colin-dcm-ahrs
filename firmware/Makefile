@@ -84,6 +84,7 @@ SRC+=$(DRIVER)/peripheral/usart.c \
 CFLAGS+=-I$(DRIVER)/device/
 SRC+=$(DRIVER)/device/mpu6050.c
 
+CFLAGS+=-I./
 SRC+=./main.c
 
 #======================================================================#
