@@ -7,14 +7,16 @@
 #include "usart.h"
 #include "i2c.h"
 
+#include "vector_space.h"
+
 #include "mpu6050.h"
 
 void ahrs_task()
 {
+	vector3d_16_t accel_raw_data, gyro_raw_data;
+
 	while(1) {
-		uint8_t mpu6050_test_data = mpu6050_read_who_am_i();
-		printf("MPU6050 Who am I: %d\n", mpu6050_test_data);
-		vTaskDelay(200);
+		mpu6050_read_raw_data(&accel_raw_data, &gyro_raw_data);
 	}
 }
 
