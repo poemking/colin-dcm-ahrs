@@ -18,6 +18,11 @@ void ahrs_task()
 	}
 }
 
+void usart_plot_task()
+{
+	while(1);
+}
+
 int main()
 {
 	/* Hardware initialization */
@@ -27,7 +32,12 @@ int main()
 
 	/* Task creation */
 	xTaskCreate(ahrs_task, (portCHAR *)"AHRS task",
+		512, NULL, tskIDLE_PRIORITY + 2, NULL);
+
+		/* Task creation */
+	xTaskCreate(ahrs_task, (portCHAR *)"USART plot task",
 		512, NULL, tskIDLE_PRIORITY + 1, NULL);
+
 
 	/* Start schedule */
 	vTaskStartScheduler();
