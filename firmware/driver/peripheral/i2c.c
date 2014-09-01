@@ -18,10 +18,10 @@ void i2c1_init()
 	GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 	I2C_InitTypeDef I2C_InitStruct = {
-		.I2C_ClockSpeed = 400000,
+		.I2C_ClockSpeed = 100000,
 		.I2C_Mode = I2C_Mode_I2C,
 		.I2C_DutyCycle = I2C_DutyCycle_2,
-		.I2C_OwnAddress1 = 0x00,
+		.I2C_OwnAddress1 = 0x68 << 1,
 		.I2C_Ack = I2C_Ack_Disable,
 		.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit	
 	};
@@ -79,13 +79,19 @@ uint8_t i2c_read_ack(I2C_TypeDef* i2c_channel)
 
 uint8_t i2c_read_nack(I2C_TypeDef* i2c_channel)
 {
+	uint8_t data;
+
 	I2C_AcknowledgeConfig(i2c_channel, DISABLE);
 
 	I2C_GenerateSTOP(i2c_channel, ENABLE);
 
 	while(!I2C_CheckEvent(i2c_channel, I2C_EVENT_MASTER_BYTE_RECEIVED));
 
-	return I2C_ReceiveData(i2c_channel);
+	data =  I2C_ReceiveData(i2c_channel);
+
+	while(i2c_channel->CR1 & I2C_CR1_STOP);
+
+	return data;
 }
 
 uint8_t i2c_single_read(I2C_TypeDef* i2c_channel, uint8_t device_address,
