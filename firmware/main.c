@@ -23,6 +23,7 @@ int main()
 	/* Hardware initialization */
 	usart3_init(57600);
 	i2c1_init();
+	while(mpu6050_init());
 
 	/* Task creation */
 	xTaskCreate(ahrs_task, (portCHAR *)"AHRS task",
