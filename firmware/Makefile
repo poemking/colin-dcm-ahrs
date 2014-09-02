@@ -79,7 +79,8 @@ SRC+=$(COMMON)/stdlib.c \
 
 CFLAGS+=-I$(DRIVER)/peripheral/
 SRC+=$(DRIVER)/peripheral/usart.c \
-	$(DRIVER)/peripheral/i2c.c
+	$(DRIVER)/peripheral/i2c.c \
+	$(DRIVER)/peripheral/led.c
 
 CFLAGS+=-I$(DRIVER)/device/
 SRC+=$(DRIVER)/device/mpu6050.c

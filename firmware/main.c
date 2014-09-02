@@ -6,6 +6,7 @@
 #include "stm32f4xx.h"
 #include "usart.h"
 #include "i2c.h"
+#include "led.h"
 
 #include "vector_space.h"
 
@@ -28,9 +29,12 @@ void usart_plot_task()
 int main()
 {
 	/* Hardware initialization */
+	led_init();
 	usart3_init(57600);
 	i2c1_init();
 	while(mpu6050_init());
+
+	led_on(LED1); //Initialization is finished
 
 	/* Task creation */
 	xTaskCreate(ahrs_task, (portCHAR *)"AHRS task",
