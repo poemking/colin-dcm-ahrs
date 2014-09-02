@@ -85,7 +85,8 @@ CFLAGS+=-I$(DRIVER)/device/
 SRC+=$(DRIVER)/device/mpu6050.c
 
 CFLAGS+=-I./
-SRC+=./main.c
+SRC+=./main.c \
+	./delay.c
 
 #======================================================================#
 #STM32 startup file
