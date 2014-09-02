@@ -107,7 +107,6 @@ uint8_t i2c_single_read(I2C_TypeDef* i2c_channel, uint8_t device_address,
 	/* Receive the data */
 	i2c_read_start(i2c_channel, device_address);
 	data = i2c_read_nack(i2c_channel);
-	i2c_stop(i2c_channel);
 
 	return data;
 }
