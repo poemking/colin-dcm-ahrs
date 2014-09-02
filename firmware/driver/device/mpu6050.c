@@ -3,6 +3,8 @@
 #include "stm32f4xx_conf.h"
 #include "i2c.h"
 
+#include "delay.h"
+
 #include "vector_space.h"
 
 /* MPU6050 register address */
@@ -31,17 +33,27 @@ uint8_t mpu6050_read_who_am_i()
 	return i2c_single_read(I2C1, MPU6050_DEVICE_ADDRESS, 0x75);
 }
 
+void mpu6050_reset()
+{
+	i2c_single_write(I2C1, MPU6050_DEVICE_ADDRESS,	MPU6050_PWR_MGMT_1, 0x80);
+
+	delay_ms(10);
+}
+
 int mpu6050_init()
 {
 	/* Check MPU6050 device is alive or not */
 	if(mpu6050_read_who_am_i() != 0x68) return 1;
 
 	//Reset the device
-	i2c_single_write(I2C1, MPU6050_DEVICE_ADDRESS,	MPU6050_PWR_MGMT_1, 0x80);
+	mpu6050_reset();	
+
 	//MPU6050 gyroscope : +-2000dps mode
 	i2c_single_write(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_GYRO_CONFIG, 0x18);
+	delay_ms(10);
 	//MPU6050 accelerator : +-4g mode
 	i2c_single_write(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_ACCEL_CONFIG, 0x08);
+	delay_ms(10);
 
 	return 0;
 }
