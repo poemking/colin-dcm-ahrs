@@ -8,6 +8,8 @@
 #include "i2c.h"
 #include "led.h"
 
+#include "delay.h"
+
 #include "vector_space.h"
 
 #include "mpu6050.h"
@@ -23,15 +25,22 @@ void ahrs_task()
 
 void usart_plot_task()
 {
-	while(1);
+	while(1) {
+		led_on(LED2);
+	}
 }
 
 int main()
 {
-	/* Hardware initialization */
+	/* Peripheral initialization */
 	led_init();
 	usart3_init(57600);
 	i2c1_init();
+
+	//Make sure all the peripheral is finished the initialization
+	delay_ms(1000);
+
+	/* Device initialization */
 	while(mpu6050_init());
 
 	led_on(LED1); //Initialization is finished
@@ -42,7 +51,7 @@ int main()
 
 		/* Task creation */
 	xTaskCreate(ahrs_task, (portCHAR *)"USART plot task",
-		512, NULL, tskIDLE_PRIORITY + 1, NULL);
+		512, NULL, tskIDLE_PRIORITY + 3, NULL);
 
 
 	/* Start schedule */
