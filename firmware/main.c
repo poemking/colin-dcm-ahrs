@@ -20,6 +20,8 @@ void ahrs_task()
 
 	while(1) {
 		mpu6050_read_raw_data(&accel_raw_data, &gyro_raw_data);
+
+		vTaskDelay(1);
 	}
 }
 
@@ -27,6 +29,8 @@ void usart_plot_task()
 {
 	while(1) {
 		led_on(LED2);
+
+		vTaskDelay(1);
 	}
 }
 
@@ -46,12 +50,13 @@ int main()
 	led_on(LED1); //Initialization is finished
 
 	/* Task creation */
+	//Attitude and Heading Reference System (AHRS) task
 	xTaskCreate(ahrs_task, (portCHAR *)"AHRS task",
 		512, NULL, tskIDLE_PRIORITY + 2, NULL);
 
-		/* Task creation */
-	xTaskCreate(ahrs_task, (portCHAR *)"USART plot task",
-		512, NULL, tskIDLE_PRIORITY + 3, NULL);
+	//USART plot task
+	xTaskCreate(usart_plot_task, (portCHAR *)"USART plot task",
+		512, NULL, tskIDLE_PRIORITY + 1, NULL);
 
 
 	/* Start schedule */
