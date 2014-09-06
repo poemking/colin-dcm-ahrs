@@ -17,6 +17,7 @@ CFLAGS+=-mfpu=fpv4-sp-d16 -mfloat-abi=softfp
 CFLAGS+=--specs=nosys.specs
 CFLAGS+=-ffreestanding -Wall
 CFLAGS+=-D USE_STDPERIPH_DRIVER
+CFLAGS+=-D STM32F429_439xx
 CFLAGS+=-I./
 
 
@@ -50,6 +51,7 @@ DRIVER=./driver
 SRC=./lib/CMSIS/system_stm32f4xx.c
 
 #StdPeriph
+CFLAGS+=-I$(ST_LIB)/inc
 SRC+=$(ST_LIB)/src/misc.c \
 	$(ST_LIB)/src/stm32f4xx_rcc.c \
 	$(ST_LIB)/src/stm32f4xx_dma.c \
