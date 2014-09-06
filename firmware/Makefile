@@ -45,6 +45,7 @@ FREERTOS=./lib/FreeRTOS
 #Major program
 COMMON=./common
 DRIVER=./driver
+AHRS=./ahrs
 
 #======================================================================#
 #Source code
@@ -77,7 +78,8 @@ SRC+=$(FREERTOS)/Source/croutine.c \
 #Major programs
 CFLAGS+=-I$(COMMON)
 SRC+=$(COMMON)/stdlib.c \
-	$(COMMON)/string.c
+	$(COMMON)/string.c \
+	$(COMMON)/delay.c
 
 CFLAGS+=-I$(DRIVER)/peripheral/
 SRC+=$(DRIVER)/peripheral/usart.c \
@@ -87,9 +89,10 @@ SRC+=$(DRIVER)/peripheral/usart.c \
 CFLAGS+=-I$(DRIVER)/device/
 SRC+=$(DRIVER)/device/mpu6050.c
 
+CFLAGS+=-I$(AHRS)
+SRC+=$(AHRS)/main.c
+
 CFLAGS+=-I./
-SRC+=./main.c \
-	./delay.c
 
 #======================================================================#
 #STM32 startup file
