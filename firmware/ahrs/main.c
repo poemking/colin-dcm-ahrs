@@ -8,27 +8,56 @@
 #include "i2c.h"
 #include "led.h"
 
-#include "delay.h"
-
-#include "vector_space.h"
-
 #include "mpu6050.h"
 
+#include "delay.h"
+#include "vector_space.h"
+#include "filter_sma.h"
+
+#define IMU_SMA_SAMPLING_CNT 100
+
 /* IMU unscaled data */
-vector3d_16_t accel_unscaled_data, gyro_unscaled_data; //The unscaled data from the IMU
+vector3d_16_t accel_unscaled_data, gyro_unscaled_data; //IMU unscaled data
 
 /* IMU scaled data */
-vector3d_f_t accel_raw_data, gyro_raw_data; //The raw data from the IMU
-vector3d_f_t accel_filt_data, gyro_filt_data; //The imu data filting by filter
+vector3d_f_t accel_raw_data, gyro_raw_data; //IMU raw data
+vector3d_f_t accel_filtered_data, gyro_filtered_data; //IMU filtered data
 
 void ahrs_task()
 {
-	while(1) {
-		mpu6050_read_raw_data(&accel_unscaled_data, &gyro_unscaled_data);
+	vector3d_f_t accel_sma_fifo[IMU_SMA_SAMPLING_CNT];
+	vector3d_f_t gyro_sma_fifo[IMU_SMA_SAMPLING_CNT];
 
-		/* Scale the IMU data */
+	/* Fill the FIFO of the SMA filter */
+	int i;
+	for(i = 0; i < IMU_SMA_SAMPLING_CNT; i++) {
+		/* Get the new sampling data */
+		mpu6050_read_raw_data(&accel_unscaled_data, &gyro_unscaled_data);
 		mpu6050_accel_convert_to_scale(&accel_unscaled_data, &accel_raw_data);
 		mpu6050_gyro_convert_to_scale(&gyro_unscaled_data, &gyro_raw_data);
+
+		/* Push the new sampling data into the FIFO */
+		accel_sma_fifo[i].x = accel_raw_data.x;
+		accel_sma_fifo[i].y = accel_raw_data.y;
+		accel_sma_fifo[i].z = accel_raw_data.z;
+		gyro_sma_fifo[i].x = gyro_raw_data.x;
+		gyro_sma_fifo[i].y = gyro_raw_data.y;
+		gyro_sma_fifo[i].z = gyro_raw_data.z;
+	}	
+
+	while(1) {
+		/* Get the new imu unscaled raw data */
+		mpu6050_read_raw_data(&accel_unscaled_data, &gyro_unscaled_data);
+
+		/* Scale the IMU raw data */
+		mpu6050_accel_convert_to_scale(&accel_unscaled_data, &accel_raw_data);
+		mpu6050_gyro_convert_to_scale(&gyro_unscaled_data, &gyro_raw_data);
+
+		/* filter the IMU raw data (SMA filter) */
+		vector3d_simple_moving_average(accel_raw_data, accel_sma_fifo,
+			&accel_filtered_data, IMU_SMA_SAMPLING_CNT);
+		vector3d_simple_moving_average(gyro_raw_data, gyro_sma_fifo,
+			&gyro_filtered_data, IMU_SMA_SAMPLING_CNT);
 
 		vTaskDelay(1);
 	}
