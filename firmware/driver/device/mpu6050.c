@@ -67,9 +67,9 @@ void mpu6050_gyro_calibrate()
 		buffer[4] = i2c_single_read(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_GYRO_ZOUT_L);
 		buffer[5] = i2c_single_read(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_GYRO_ZOUT_H);
 
-		memcpy(&gyro_new_sampling_data.x, buffer[0], sizeof(int16_t));
-		memcpy(&gyro_new_sampling_data.y, buffer[2], sizeof(int16_t));
-		memcpy(&gyro_new_sampling_data.z, buffer[4], sizeof(int16_t));
+		memcpy(&gyro_new_sampling_data.x, &buffer[0], sizeof(int16_t));
+		memcpy(&gyro_new_sampling_data.y, &buffer[2], sizeof(int16_t));
+		memcpy(&gyro_new_sampling_data.z, &buffer[4], sizeof(int16_t));
 
 		/* Add cache data with new data */
 		gyro_average_cache.x += gyro_new_sampling_data.x;
