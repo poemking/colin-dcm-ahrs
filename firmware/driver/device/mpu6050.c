@@ -12,6 +12,10 @@
 #define MPU6050_ACCEL_SCALE MPU6050A_4g
 #define MPU6050_GYRO_SCALE MPU6050G_2000dps
 
+#define GYRO_SAMPLING_COUNT 10000
+
+vector3d_16_t mpu6050_gyro_offset;
+
 uint8_t mpu6050_read_who_am_i()
 {
 	return i2c_single_read(I2C1, MPU6050_DEVICE_ADDRESS, 0x75);
@@ -37,7 +41,46 @@ int mpu6050_init()
 	//MPU6050 gyroscope : +-2000dps mode
 	i2c_single_write(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_GYRO_CONFIG, 0x18);
 
+	delay_ms(10000);
+
+	/* Calibrate the device */
+	mpu6050_gyro_calibrate();
+
 	return 0;
+}
+
+void mpu6050_gyro_calibrate()
+{
+	uint8_t buffer[6];
+
+	vector3d_16_t gyro_average_cache;
+	vector3d_16_t gyro_new_sampling_data;
+
+	/* Calculate the bias of the gyroscope */
+	int i;
+	for(i = 0; i < GYRO_SAMPLING_COUNT; i++) {
+		/* Get the new gyro data */
+		buffer[0] = i2c_single_read(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_GYRO_XOUT_L);
+		buffer[1] = i2c_single_read(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_GYRO_XOUT_H);
+		buffer[2] = i2c_single_read(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_GYRO_YOUT_L);
+		buffer[3] = i2c_single_read(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_GYRO_YOUT_H);
+		buffer[4] = i2c_single_read(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_GYRO_ZOUT_L);
+		buffer[5] = i2c_single_read(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_GYRO_ZOUT_H);
+
+		memcpy(&gyro_new_sampling_data.x, buffer[0], sizeof(int16_t));
+		memcpy(&gyro_new_sampling_data.y, buffer[2], sizeof(int16_t));
+		memcpy(&gyro_new_sampling_data.z, buffer[4], sizeof(int16_t));
+
+		/* Add cache data with new data */
+		gyro_average_cache.x += gyro_new_sampling_data.x;
+		gyro_average_cache.y += gyro_new_sampling_data.y;
+		gyro_average_cache.z += gyro_new_sampling_data.z;
+	}
+
+	/* Get the average of all samping datas */
+	mpu6050_gyro_offset.x = gyro_average_cache.x / GYRO_SAMPLING_COUNT;	
+	mpu6050_gyro_offset.y = gyro_average_cache.y / GYRO_SAMPLING_COUNT;
+	mpu6050_gyro_offset.z = gyro_average_cache.z / GYRO_SAMPLING_COUNT;
 }
 
 void mpu6050_read_raw_data(vector3d_16_t *accel_raw_data, vector3d_16_t *gyro_raw_data)
