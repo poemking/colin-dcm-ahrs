@@ -65,12 +65,18 @@ void mpu6050_read_raw_data(vector3d_16_t *accel_raw_data, vector3d_16_t *gyro_ra
 	memcpy(&gyro_raw_data->z, &buffer[10], sizeof(int16_t));
 }
 
-int32_t mpu6050_convert_scale_to_acceleration(int16_t accel_scale)
+void mpu6050_convert_scale_to_acceleration(vector3d_16_t *accel_scaled_data,
+	vector3d_f_t *accel_unscaled_data)
 {
-	return accel_scale * MPU6050_ACCEL_SCALE;
+	 accel_unscaled_data->x = accel_scaled_data->x * MPU6050_ACCEL_SCALE;
+	 accel_unscaled_data->y = accel_scaled_data->y * MPU6050_ACCEL_SCALE;
+	 accel_unscaled_data->z = accel_scaled_data->z * MPU6050_ACCEL_SCALE;
 }
 
-int32_t mpu6050_convert_scale_to_angle_velocity(int16_t gyro_scale)
+void mpu6050_convert_scale_to_angle_velocity(vector3d_16_t *gyro_scaled_data,
+	vector3d_f_t *gyro_unscaled_data)
 {
-	return gyro_scale * MPU6050_GYRO_SCALE;
+	 gyro_unscaled_data->x = gyro_scaled_data->x * MPU6050_GYRO_SCALE;
+	 gyro_unscaled_data->y = gyro_scaled_data->y * MPU6050_GYRO_SCALE;
+	 gyro_unscaled_data->z = gyro_scaled_data->z * MPU6050_GYRO_SCALE;
 }
