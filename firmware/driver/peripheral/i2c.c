@@ -114,13 +114,10 @@ uint8_t i2c_single_read(I2C_TypeDef* i2c_channel, uint8_t device_address,
 void i2c_single_write(I2C_TypeDef* i2c_channel, uint8_t device_address,
 	uint8_t register_address, uint8_t data)
 {
+	i2c_write_start(i2c_channel, device_address);
 	/* Send the register address */
-	i2c_write_start(i2c_channel, device_address);
 	i2c_write(i2c_channel, register_address);
-	i2c_stop(i2c_channel);
-
 	/* Write the data into the register */
-	i2c_write_start(i2c_channel, device_address);
 	i2c_write(i2c_channel, data);
 	i2c_stop(i2c_channel);
 }
