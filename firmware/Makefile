@@ -90,7 +90,8 @@ CFLAGS+=-I$(DRIVER)/device/
 SRC+=$(DRIVER)/device/mpu6050.c
 
 CFLAGS+=-I$(AHRS)
-SRC+=$(AHRS)/main.c
+SRC+=$(AHRS)/main.c \
+	$(AHRS)/filter_sma.c
 
 CFLAGS+=-I./
 
