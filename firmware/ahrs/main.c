@@ -14,21 +14,21 @@
 
 #include "mpu6050.h"
 
-/* IMU scaled data */
-vector3d_16_t accel_scaled_data, gyro_scaled_data; //The scale data from the IMU
-
 /* IMU unscaled data */
+vector3d_16_t accel_unscaled_data, gyro_unscaled_data; //The unscaled data from the IMU
+
+/* IMU scaled data */
 vector3d_f_t accel_raw_data, gyro_raw_data; //The raw data from the IMU
 vector3d_f_t accel_filt_data, gyro_filt_data; //The imu data filting by filter
 
 void ahrs_task()
 {
 	while(1) {
-		mpu6050_read_raw_data(&accel_scaled_data, &gyro_scaled_data);
+		mpu6050_read_raw_data(&accel_unscaled_data, &gyro_unscaled_data);
 
-		/* Unscale the IMU data */
-		mpu6050_convert_scale_to_acceleration(&accel_scaled_data, &accel_raw_data);
-		mpu6050_convert_scale_to_angle_velocity(&gyro_scaled_data, &gyro_raw_data);
+		/* Scale the IMU data */
+		mpu6050_accel_convert_to_scale(&accel_unscaled_data, &accel_raw_data);
+		mpu6050_gyro_convert_to_scale(&gyro_unscaled_data, &gyro_raw_data);
 
 		vTaskDelay(1);
 	}
