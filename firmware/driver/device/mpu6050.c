@@ -44,7 +44,7 @@ int mpu6050_init()
 	delay_ms(1000);
 
 	/* Calibrate the device */
-	mpu6050_gyro_calibrate();
+	//mpu6050_gyro_calibrate();
 
 	return 0;
 }
