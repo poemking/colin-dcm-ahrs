@@ -16,6 +16,16 @@
 
 vector3d_16_t mpu6050_gyro_offset;
 
+static void mpu6050_read(uint8_t *data, uint8_t register_adress, int data_count)
+{
+	i2c_read(I2C1, MPU6050_DEVICE_ADDRESS, register_adress, data, data_count);
+}
+
+static void mpu6050_write(uint8_t data)
+{
+	i2c_single_write(I2C1, MPU6050_DEVICE_ADDRESS, register_address, data);
+}
+
 uint8_t mpu6050_read_who_am_i()
 {
 	uint8_t data;

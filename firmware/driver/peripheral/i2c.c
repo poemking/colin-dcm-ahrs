@@ -1,7 +1,7 @@
 #include "stm32f4xx_conf.h"
+#include "i2c.h"
 
-/* EEPROM I2C Timeout exception */
-typedef enum {I2C_SUCCESS, I2C_TIMEOUT} I2C_Status;
+/* I2C Timeout exception */
 int i2c_timeout;
 I2C_Status i2c_status;
 #define I2C_TIMED(x) i2c_timeout = 0xFFFF; i2c_status = I2C_SUCCESS; \
