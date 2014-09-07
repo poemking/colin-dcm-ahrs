@@ -34,6 +34,14 @@ uint8_t mpu6050_read_who_am_i()
 	return data;
 }
 
+void mpu6050_reset()
+{
+	i2c_single_write(I2C1, MPU6050_DEVICE_ADDRESS,  MPU6050_PWR_MGMT_1, 0x80);
+	
+
+	delay_ms(1000);
+}
+
 void mpu6050_wakeup()
 {
 	i2c_single_write(I2C1, MPU6050_DEVICE_ADDRESS,  MPU6050_PWR_MGMT_1, 0x00);
@@ -45,6 +53,9 @@ int mpu6050_init()
 {
 	/* Check MPU6050 device is alive or not */
 	if(mpu6050_read_who_am_i() != 0x68) return 1;
+
+	//Reset the device
+	mpu6050_reset();
 
 	//Wakeup the device
 	mpu6050_wakeup();
