@@ -1,5 +1,12 @@
 #include "stm32f4xx_conf.h"
 
+/* EEPROM I2C Timeout exception */
+typedef enum {I2C_SUCCESS, I2C_TIMEOUT} I2C_Status;
+int i2c_timeout;
+I2C_Status i2c_status;
+#define I2C_TIMED(x) i2c_timeout = 0xFFFF; i2c_status = I2C_SUCCESS; \
+while(x) { if(i2c_timeout-- == 0) { i2c_status = I2C_TIMEOUT; goto i2c_restart;} }
+
 void i2c1_init()
 {
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
@@ -120,4 +127,75 @@ void i2c_single_write(I2C_TypeDef* i2c_channel, uint8_t device_address,
 	/* Write the data into the register */
 	i2c_write(i2c_channel, data);
 	i2c_stop(i2c_channel);
+}
+
+I2C_Status i2c_read(I2C_TypeDef* i2c_channel, uint8_t device_address, uint8_t register_address, uint8_t *data,
+	int data_count)
+{
+	while(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY));
+    
+	/* Send the I2C start condition */
+	I2C_GenerateSTART(I2C1, ENABLE);
+  
+	/* Test on I2C EV5 and clear it */
+	I2C_TIMED(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
+
+	/* Send the device address */
+	I2C_Send7bitAddress(I2C1, device_address, I2C_Direction_Transmitter);
+
+	/* Test on I2C EV6 and clear it */
+	I2C_TIMED(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
+  
+	/* Clear the I2C EV6 by setting again the PE bit */
+	I2C_Cmd(I2C1, ENABLE);
+
+	/* Send the register_address */
+	I2C_SendData(I2C1, register_address);  
+
+	/* Test on I2C EV8 and clear it */
+	I2C_TIMED(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+  
+	/* Send the start condition a second time */  
+	I2C_GenerateSTART(I2C1, ENABLE);
+  
+	/* Test on I2C EV5 and clear it */
+	I2C_TIMED(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
+  
+	/* Send the device address */
+	I2C_Send7bitAddress(I2C1, device_address, I2C_Direction_Receiver);
+  
+	/* Test on I2C EV6 and clear it */
+	I2C_TIMED(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED));
+  
+	while(data_count) {
+		if(data_count == 1) {
+			/* Disable Acknowledgement */
+			I2C_AcknowledgeConfig(I2C1, DISABLE);
+ 
+			/* Send STOP Condition */
+			I2C_GenerateSTOP(I2C1, ENABLE);
+		}
+
+		/* Test on EV7 and clear it */
+		I2C_TIMED(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_RECEIVED));
+		
+		/* Read a byte from the EEPROM */
+		*data = I2C_ReceiveData(I2C1);
+
+		/* Point to the next location where the byte read will be saved */
+		data++;
+
+		/* Decrement the read bytes counter */
+		data_count--;
+
+		/* Wait to make sure that STOP control bit has been cleared */
+		I2C_TIMED(I2C1->CR1 & I2C_CR1_STOP);
+	}
+
+	/* Restart the I2C */
+	i2c_restart:
+	I2C_AcknowledgeConfig(I2C1, DISABLE);
+	I2C_AcknowledgeConfig(I2C1, ENABLE);
+
+	return i2c_status;
 }
