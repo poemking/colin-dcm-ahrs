@@ -91,7 +91,7 @@ SRC+=$(DRIVER)/device/mpu6050.c
 
 CFLAGS+=-I$(AHRS)
 SRC+=$(AHRS)/main.c \
-	$(AHRS)/filter_sma.c
+	$(AHRS)/moving_average.c
 
 CFLAGS+=-I./
 

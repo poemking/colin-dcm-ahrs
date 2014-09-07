@@ -12,7 +12,7 @@
 
 #include "delay.h"
 #include "vector_space.h"
-#include "filter_sma.h"
+#include "moving_average.h"
 
 #define IMU_SMA_SAMPLING_CNT 100
 
