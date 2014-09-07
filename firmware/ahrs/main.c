@@ -90,11 +90,11 @@ int main()
 	/* Task creation */
 	//Attitude and Heading Reference System (AHRS) task
 	xTaskCreate(ahrs_task, (portCHAR *)"AHRS task",
-		512, NULL, tskIDLE_PRIORITY + 2, NULL);
+		4096, NULL, tskIDLE_PRIORITY + 2, NULL);
 
 	//USART plot task
 	xTaskCreate(usart_plot_task, (portCHAR *)"USART plot task",
-		512, NULL, tskIDLE_PRIORITY + 1, NULL);
+		1024, NULL, tskIDLE_PRIORITY + 1, NULL);
 
 
 	/* Start schedule */
