@@ -41,7 +41,7 @@ int mpu6050_init()
 	//MPU6050 gyroscope : +-2000dps mode
 	i2c_single_write(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_GYRO_CONFIG, 0x18);
 
-	delay_ms(10000);
+	delay_ms(1000);
 
 	/* Calibrate the device */
 	mpu6050_gyro_calibrate();
