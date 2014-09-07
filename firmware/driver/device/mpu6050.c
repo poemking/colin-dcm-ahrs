@@ -18,7 +18,10 @@ vector3d_16_t mpu6050_gyro_offset;
 
 uint8_t mpu6050_read_who_am_i()
 {
-	return i2c_single_read(I2C1, MPU6050_DEVICE_ADDRESS, 0x75);
+	uint8_t data;
+	i2c_read(I2C1, MPU6050_DEVICE_ADDRESS, 0x75, &data, 1);
+
+	return data;
 }
 
 void mpu6050_wakeup()
