@@ -13,18 +13,22 @@ GDB=arm-none-eabi-gdb
 #Flags
 CFLAGS=-g -mlittle-endian -mthumb
 CFLAGS+=-mcpu=cortex-m4
-CFLAGS+=-mfpu=fpv4-sp-d16 -mfloat-abi=softfp
-CFLAGS+=--specs=nosys.specs
-CFLAGS+=-ffreestanding -Wall
-CFLAGS+=-D USE_STDPERIPH_DRIVER
-CFLAGS+=-D STM32F429_439xx
+CFLAGS+=-mfpu=fpv4-sp-d16 -mfloat-abi=hard
+CFLAGS+=--specs=nano.specs --specs=nosys.specs
+CFLAGS+=-Wall
+CFLAGS+=-D USE_STDPERIPH_DRIVER \
+	-D STM32F429_439xx \
+	-D __FPU_PRESENT=1 \
+	-D __FPU_USED=1 \
+	-D ARM_MATH_CM4
 CFLAGS+=-I./
-
 
 #stm32-flash
 CFLAGS+=-Wl,-T,stm32_flash.ld
 
 ARCH=CM4F
+
+LDLIBS+=-Wl,--start-group -lm -Wl,--end-group
 
 #======================================================================#
 #Libraries
@@ -111,10 +115,10 @@ $(BIN_IMAGE):$(EXECUTABLE)
 STARTUP_OBJ = startup_stm32f4xx.o
 
 $(STARTUP_OBJ): $(STARTUP) 
-	$(CC) $(CFLAGS) $^ -c $(STARTUP)
+	$(CC) $(CFLAGS) $^ $(LDLIBS) -c $(STARTUP)
 
 $(EXECUTABLE):$(SRC) $(STARTUP_OBJ)
-	$(CC) $(CFLAGS) $^ -o $@
+	$(CC) $(CFLAGS) $^ $(LDLIBS) -o $@
 
 #Make clean
 clean:
