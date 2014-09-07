@@ -179,7 +179,7 @@ I2C_Status i2c_read(I2C_TypeDef* i2c_channel, uint8_t device_address, uint8_t re
 		/* Test on EV7 and clear it */
 		I2C_TIMED(!I2C_CheckEvent(i2c_channel, I2C_EVENT_MASTER_BYTE_RECEIVED));
 		
-		/* Read a byte from the EEPROM */
+		/* Read a byte from the register */
 		*data = I2C_ReceiveData(i2c_channel);
 
 		/* Point to the next location where the byte read will be saved */
@@ -200,7 +200,7 @@ I2C_Status i2c_read(I2C_TypeDef* i2c_channel, uint8_t device_address, uint8_t re
 }
 
 I2C_Status i2c_write(I2C_TypeDef* i2c_channel, uint8_t device_address, uint8_t register_address, 
-	uint8_t *data, int data_count)
+	uint8_t data)
 {
 	while(I2C_GetFlagStatus(i2c_channel, I2C_FLAG_BUSY));
 
@@ -210,28 +210,23 @@ I2C_Status i2c_write(I2C_TypeDef* i2c_channel, uint8_t device_address, uint8_t r
 	/* Test on I2C EV5 and clear it */
 	I2C_TIMED(!I2C_CheckEvent(i2c_channel, I2C_EVENT_MASTER_MODE_SELECT)); 
   
-	/* Send EEPROM address for write */
+	/* Send device address for write */
 	I2C_Send7bitAddress(i2c_channel, device_address, I2C_Direction_Transmitter);
   
 	/* Test on I2C EV6 and clear it */
 	I2C_TIMED(!I2C_CheckEvent(i2c_channel, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));  
 
-	/* Send the EEPROM word address */    
+	/* Send the register address */    
 	I2C_SendData(i2c_channel, register_address);  
 
 	/* Test on I2C EV8 and clear it */
 	I2C_TIMED(! I2C_CheckEvent(i2c_channel, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
 
-	while(data_count--) {
-		/* Send the current byte */
-		I2C_SendData(i2c_channel, *data); 
+	/* Send the current byte */
+	I2C_SendData(i2c_channel, data); 
 
-		/* Point to the next byte to be written */
-		data++; 
-  
-		/* Test on I2C EV8 and clear it */
-		I2C_TIMED(!I2C_CheckEvent(i2c_channel, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
-	}
+	/* Test on I2C EV8 and clear it */
+	I2C_TIMED(!I2C_CheckEvent(i2c_channel, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
 
 	/* Send the I2C stop condition */
 	I2C_GenerateSTOP(i2c_channel, ENABLE);
