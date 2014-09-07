@@ -16,12 +16,12 @@
 
 vector3d_16_t mpu6050_gyro_offset;
 
-static void mpu6050_read(uint8_t *data, uint8_t register_adress, int data_count)
+static void mpu6050_read(uint8_t register_adress, uint8_t *data, int data_count)
 {
 	i2c_read(I2C1, MPU6050_DEVICE_ADDRESS, register_adress, data, data_count);
 }
 
-static void mpu6050_write(uint8_t data)
+static void mpu6050_write(uint8_t register_address, uint8_t data)
 {
 	i2c_single_write(I2C1, MPU6050_DEVICE_ADDRESS, register_address, data);
 }
@@ -50,9 +50,9 @@ int mpu6050_init()
 	mpu6050_wakeup();
 
 	//MPU6050 accelerator : +-4g mode
-	i2c_single_write(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_ACCEL_CONFIG, 0x08);
+	mpu6050_write(MPU6050_ACCEL_CONFIG, 0x08);
 	//MPU6050 gyroscope : +-2000dps mode
-	i2c_single_write(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_GYRO_CONFIG, 0x18);
+	mpu6050_write(MPU6050_GYRO_CONFIG, 0x18);
 
 	delay_ms(1000);
 
@@ -73,13 +73,8 @@ void mpu6050_gyro_calibrate()
 	int i;
 	for(i = 0; i < GYRO_SAMPLING_COUNT; i++) {
 		/* Get the new gyro data */
-		buffer[0] = i2c_single_read(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_GYRO_XOUT_L);
-		buffer[1] = i2c_single_read(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_GYRO_XOUT_H);
-		buffer[2] = i2c_single_read(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_GYRO_YOUT_L);
-		buffer[3] = i2c_single_read(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_GYRO_YOUT_H);
-		buffer[4] = i2c_single_read(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_GYRO_ZOUT_L);
-		buffer[5] = i2c_single_read(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_GYRO_ZOUT_H);
-
+		mpu6050_read(MPU6050_GYRO_XOUT_H, buffer, 6);
+		
 		memcpy(&gyro_new_sampling_data.x, &buffer[0], sizeof(int16_t));
 		memcpy(&gyro_new_sampling_data.y, &buffer[2], sizeof(int16_t));
 		memcpy(&gyro_new_sampling_data.z, &buffer[4], sizeof(int16_t));
@@ -98,27 +93,17 @@ void mpu6050_gyro_calibrate()
 
 void mpu6050_read_raw_data(vector3d_16_t *accel_raw_data, vector3d_16_t *gyro_raw_data)
 {
-	uint8_t buffer[12]; //12 for 6 axis high/low byte
+	uint8_t buffer[14]; //12 for 6 axis high/low byte
 
-	buffer[0] = i2c_single_read(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_ACCEL_XOUT_L); 
-	buffer[1] = i2c_single_read(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_ACCEL_XOUT_H);
-	buffer[2] = i2c_single_read(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_ACCEL_YOUT_L);
-	buffer[3] = i2c_single_read(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_ACCEL_YOUT_H);
-	buffer[4] = i2c_single_read(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_ACCEL_ZOUT_L);
-	buffer[5] = i2c_single_read(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_ACCEL_ZOUT_H);
-	buffer[6] = i2c_single_read(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_GYRO_XOUT_L);
-	buffer[7] = i2c_single_read(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_GYRO_XOUT_H);
-	buffer[8] = i2c_single_read(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_GYRO_YOUT_L);
-	buffer[9] = i2c_single_read(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_GYRO_YOUT_H);
-	buffer[10] = i2c_single_read(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_GYRO_ZOUT_L);
-	buffer[11] = i2c_single_read(I2C1, MPU6050_DEVICE_ADDRESS, MPU6050_GYRO_ZOUT_H);
+	/* Get the new data */
+	mpu6050_read(MPU6050_ACCEL_XOUT_H, buffer, 14); 
 
 	memcpy(&accel_raw_data->x, &buffer[0], sizeof(int16_t));
 	memcpy(&accel_raw_data->y, &buffer[2], sizeof(int16_t));
 	memcpy(&accel_raw_data->z, &buffer[4], sizeof(int16_t));
-	memcpy(&gyro_raw_data->x, &buffer[6], sizeof(int16_t));
-	memcpy(&gyro_raw_data->y, &buffer[8], sizeof(int16_t));
-	memcpy(&gyro_raw_data->z, &buffer[10], sizeof(int16_t));
+	memcpy(&gyro_raw_data->x, &buffer[8], sizeof(int16_t));
+	memcpy(&gyro_raw_data->y, &buffer[10], sizeof(int16_t));
+	memcpy(&gyro_raw_data->z, &buffer[12], sizeof(int16_t));
 }
 
 void mpu6050_accel_convert_to_scale(vector3d_16_t *accel_unscaled_data,
