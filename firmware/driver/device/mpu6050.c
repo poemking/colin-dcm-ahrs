@@ -101,7 +101,7 @@ void mpu6050_gyro_calibrate()
 	mpu6050_gyro_offset.z = gyro_average_cache.z / GYRO_SAMPLING_COUNT;
 }
 
-void mpu6050_read_raw_data(vector3d_16_t *accel_raw_data, vector3d_16_t *gyro_raw_data)
+void mpu6050_read_unscaled_data(vector3d_16_t *accel_raw_data, vector3d_16_t *gyro_raw_data)
 {
 	uint8_t buffer[14]; //12 for 6 axis high/low byte
 
