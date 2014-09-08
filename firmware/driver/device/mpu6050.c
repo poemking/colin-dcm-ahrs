@@ -23,7 +23,7 @@ static void mpu6050_read(uint8_t register_adress, uint8_t *data, int data_count)
 
 static void mpu6050_write(uint8_t register_address, uint8_t data)
 {
-	i2c_single_write(I2C1, MPU6050_DEVICE_ADDRESS, register_address, data);
+	i2c_write(I2C1, MPU6050_DEVICE_ADDRESS, register_address, data);
 }
 
 uint8_t mpu6050_read_who_am_i()
@@ -36,7 +36,7 @@ uint8_t mpu6050_read_who_am_i()
 
 void mpu6050_reset()
 {
-	i2c_single_write(I2C1, MPU6050_DEVICE_ADDRESS,  MPU6050_PWR_MGMT_1, 0x80);
+	mpu6050_write(MPU6050_PWR_MGMT_1, 0x80);
 	
 
 	delay_ms(1000);
@@ -44,7 +44,7 @@ void mpu6050_reset()
 
 void mpu6050_wakeup()
 {
-	i2c_single_write(I2C1, MPU6050_DEVICE_ADDRESS,  MPU6050_PWR_MGMT_1, 0x00);
+	mpu6050_write(MPU6050_PWR_MGMT_1, 0x00);
 
 	delay_ms(1000);
 }
