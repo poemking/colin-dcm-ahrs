@@ -7,4 +7,7 @@ typedef struct {
 	float yaw_angle;
 } attitude_t;
 
+void gyro_integrate(attitude_t *attitude, vector3d_f_t gyro_scaled_data,
+	float period_time);
+
 #endif
