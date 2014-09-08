@@ -42,24 +42,18 @@ void vector3d_weight_moving_average(vector3d_f_t new_sampling_data, vector3d_f_t
 		memcpy((uint8_t *)&data_fifo[i], (uint8_t *)&data_fifo[i + 1], sizeof(vector3d_f_t));
 
 		//weight the old data without last time dropped then calculate the sum
-		data_fifo[i].x *= (i + 1);
-		data_fifo[i].y *= (i + 1);
-		data_fifo[i].z *= (i + 1);
-		data_result->x += data_fifo[i].x;
-		data_result->y += data_fifo[i].y;
-		data_result->z += data_fifo[i].z;
+		data_result->x += data_fifo[i].x * (i + 1);
+		data_result->y += data_fifo[i].y * (i + 1);
+		data_result->z += data_fifo[i].z * (i + 1);
 	}
 
 	/* Put new data at the last of the FIFO */
 	memcpy((uint8_t *)&data_fifo[sampling_count -1], (uint8_t *)&new_sampling_data, sizeof(vector3d_f_t));
 
 	//Weight the new data then add into the FIFO sum
-	data_fifo[sampling_count].x *= sampling_count;
-	data_fifo[sampling_count].y *= sampling_count;
-	data_fifo[sampling_count].z *= sampling_count;
-	data_result->x += data_fifo[sampling_count].x;
-	data_result->y += data_fifo[sampling_count].y;
-	data_result->z += data_fifo[sampling_count].z;
+	data_result->x += (new_sampling_data.x * sampling_count);
+	data_result->y += (new_sampling_data.y * sampling_count);
+	data_result->z += (new_sampling_data.z * sampling_count);
 
 	/* Caluculate the average of the new FIFO */
 	data_result->x /= (sampling_count * (sampling_count + 1) / 2);
@@ -84,12 +78,9 @@ void vector3d_exponential_moving_average(vector3d_f_t new_sampling_data, vector3
 		alpha_sum += pow(alpha, i + 1);
 
 		//weight the old data without last time dropped then calculate the sum
-		data_fifo[i].x *= alpha;
-		data_fifo[i].y *= alpha;
-		data_fifo[i].z *= alpha;
-		data_result->x += data_fifo[i].x;
-		data_result->y += data_fifo[i].y;
-		data_result->z += data_fifo[i].z;
+		data_result->x += data_fifo[i].x * alpha;
+		data_result->y += data_fifo[i].y * alpha;
+		data_result->z += data_fifo[i].z * alpha;
 	}
 
 	/* Put new data at the last of the FIFO */
@@ -102,12 +93,9 @@ void vector3d_exponential_moving_average(vector3d_f_t new_sampling_data, vector3
 	alpha_sum += pow(alpha, sampling_count);
 
 	//Add the new data into the FIFO sum
-	data_fifo[sampling_count].x *= alpha;
-	data_fifo[sampling_count].y *= alpha;
-	data_fifo[sampling_count].z *= alpha;
-	data_result->x += data_fifo[sampling_count].x;
-	data_result->y += data_fifo[sampling_count].y;
-	data_result->z += data_fifo[sampling_count].z;
+	data_result->x += new_sampling_data.x * alpha;
+	data_result->y += new_sampling_data.y * alpha;
+	data_result->z += new_sampling_data.z * alpha;
 
 	/* Caluculate the average of the new FIFO */
 	data_result->x /= alpha_sum;
