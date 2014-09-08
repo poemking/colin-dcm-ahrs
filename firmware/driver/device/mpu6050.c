@@ -38,7 +38,6 @@ void mpu6050_reset()
 {
 	mpu6050_write(MPU6050_PWR_MGMT_1, 0x80);
 	
-
 	delay_ms(1000);
 }
 
@@ -85,11 +84,11 @@ void mpu6050_gyro_calibrate()
 	for(i = 0; i < GYRO_SAMPLING_COUNT; i++) {
 		/* Get the new gyro data */
 		mpu6050_read(MPU6050_GYRO_XOUT_H, buffer, 6);
-		
-		memcpy(&gyro_new_sampling_data.x, &buffer[0], sizeof(int16_t));
-		memcpy(&gyro_new_sampling_data.y, &buffer[2], sizeof(int16_t));
-		memcpy(&gyro_new_sampling_data.z, &buffer[4], sizeof(int16_t));
 
+		gyro_new_sampling_data.x = (buffer[0] << 8) | buffer[1];
+		gyro_new_sampling_data.y = (buffer[2] << 8) | buffer[3];
+		gyro_new_sampling_data.z = (buffer[4] << 8) | buffer[5];
+	
 		/* Add cache data with new data */
 		gyro_average_cache.x += gyro_new_sampling_data.x;
 		gyro_average_cache.y += gyro_new_sampling_data.y;
@@ -109,12 +108,12 @@ void mpu6050_read_raw_data(vector3d_16_t *accel_raw_data, vector3d_16_t *gyro_ra
 	/* Get the new data */
 	mpu6050_read(MPU6050_ACCEL_XOUT_H, buffer, 14); 
 
-	memcpy(&accel_raw_data->x, &buffer[0], sizeof(int16_t));
-	memcpy(&accel_raw_data->y, &buffer[2], sizeof(int16_t));
-	memcpy(&accel_raw_data->z, &buffer[4], sizeof(int16_t));
-	memcpy(&gyro_raw_data->x, &buffer[8], sizeof(int16_t));
-	memcpy(&gyro_raw_data->y, &buffer[10], sizeof(int16_t));
-	memcpy(&gyro_raw_data->z, &buffer[12], sizeof(int16_t));
+	accel_raw_data->x = (buffer[0] << 8) | buffer[1];
+	accel_raw_data->y = (buffer[2] << 8) | buffer[3];
+	accel_raw_data->z = (buffer[4] << 8) | buffer[5];
+	gyro_raw_data->x = (buffer[8] << 8) | buffer[9];
+	gyro_raw_data->y = (buffer[10] << 8) | buffer[11];
+	gyro_raw_data->z = (buffer[12] << 8) | buffer[13];
 }
 
 void mpu6050_accel_convert_to_scale(vector3d_16_t *accel_unscaled_data,
