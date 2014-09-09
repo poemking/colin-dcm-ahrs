@@ -117,6 +117,13 @@ void mpu6050_read_unscaled_data(vector3d_16_t *accel_raw_data, vector3d_16_t *gy
 	gyro_raw_data->z = (buffer[12] << 8) | buffer[13];
 }
 
+void mpu6050_gyro_fix_bias(vector3d_16_t *accel_unscaled_data)
+{
+	accel_unscaled_data->x -= mpu6050_gyro_offset.x;
+	accel_unscaled_data->y -= mpu6050_gyro_offset.y;
+	accel_unscaled_data->z -= mpu6050_gyro_offset.z;
+}
+
 void mpu6050_accel_convert_to_scale(vector3d_16_t *accel_unscaled_data,
 	vector3d_f_t *accel_scaled_data)
 {

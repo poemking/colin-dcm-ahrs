@@ -33,6 +33,10 @@ void ahrs_task()
 	for(i = 0; i < IMU_SMA_SAMPLING_CNT; i++) {
 		/* Get the new sampling data */
 		mpu6050_read_unscaled_data(&accel_unscaled_data, &gyro_unscaled_data);
+
+		/* Fix the sensor bias */
+		mpu6050_gyro_fix_bias(&gyro_unscaled_data);
+
 		mpu6050_accel_convert_to_scale(&accel_unscaled_data, &accel_raw_data);
 		mpu6050_gyro_convert_to_scale(&gyro_unscaled_data, &gyro_raw_data);
 
@@ -48,6 +52,9 @@ void ahrs_task()
 	while(1) {
 		/* Get the new IMU unscaled raw data */
 		mpu6050_read_unscaled_data(&accel_unscaled_data, &gyro_unscaled_data);
+
+		/* Fix the sensor bias */
+		mpu6050_gyro_fix_bias(&gyro_unscaled_data);
 
 		/* Scale the IMU raw data */
 		mpu6050_accel_convert_to_scale(&accel_unscaled_data, &accel_raw_data);

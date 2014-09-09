@@ -42,6 +42,8 @@ void mpu6050_gyro_calibrate();
 
 void mpu6050_read_unscaled_data(vector3d_16_t *accel_raw_data, vector3d_16_t *gyro_raw_data);
 
+void mpu6050_gyro_fix_bias(vector3d_16_t *accel_unscaled_data);
+
 void mpu6050_accel_convert_to_scale(vector3d_16_t *accel_unscaled_data,
 	vector3d_f_t *accel_scaled_data);
 void mpu6050_gyro_convert_to_scale(vector3d_16_t *gyro_unscaled_data,
