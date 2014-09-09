@@ -76,31 +76,32 @@ int mpu6050_init()
 
 void mpu6050_calibrate()
 {
-	vector3d_16_t accel_average_cache;
-	vector3d_16_t gyro_average_cache;
+	vector3d_f_t accel_average_cache;
+	vector3d_f_t gyro_average_cache;
 	vector3d_16_t accel_new_sampling_data;
 	vector3d_16_t gyro_new_sampling_data;
 
-	/* Calculate the bias of the gyroscope */
+	/* Calculate the average */
 	int i;
 	for(i = 0; i < CALIBRATE_SAMPLING_COUNT; i++) {
 		mpu6050_read_unscaled_data(&accel_new_sampling_data, &gyro_new_sampling_data);
  
-		accel_average_cache.x += accel_new_sampling_data.x;	
-		accel_average_cache.y += accel_new_sampling_data.y;	
-		accel_average_cache.z += accel_new_sampling_data.z;	
-		gyro_average_cache.x += gyro_new_sampling_data.x;
-		gyro_average_cache.y += gyro_new_sampling_data.y;
-		gyro_average_cache.z += gyro_new_sampling_data.z;
+		accel_average_cache.x += (float)accel_new_sampling_data.x / CALIBRATE_SAMPLING_COUNT;	
+		accel_average_cache.y += (float)accel_new_sampling_data.y / CALIBRATE_SAMPLING_COUNT;	
+		accel_average_cache.z += (float)accel_new_sampling_data.z / CALIBRATE_SAMPLING_COUNT;	
+		gyro_average_cache.x += (float)gyro_new_sampling_data.x / CALIBRATE_SAMPLING_COUNT;
+		gyro_average_cache.y += (float)gyro_new_sampling_data.y / CALIBRATE_SAMPLING_COUNT;
+		gyro_average_cache.z += (float)gyro_new_sampling_data.z / CALIBRATE_SAMPLING_COUNT;
 	}
 
-	/* Get the average of all samping datas */
-	mpu6050_accel_offset.x = accel_average_cache.x / CALIBRATE_SAMPLING_COUNT;
-	mpu6050_accel_offset.y = accel_average_cache.y / CALIBRATE_SAMPLING_COUNT;
-	mpu6050_accel_offset.z = accel_average_cache.z / CALIBRATE_SAMPLING_COUNT;
-	mpu6050_gyro_offset.x = gyro_average_cache.x / CALIBRATE_SAMPLING_COUNT;	
-	mpu6050_gyro_offset.y = gyro_average_cache.y / CALIBRATE_SAMPLING_COUNT;
-	mpu6050_gyro_offset.z = gyro_average_cache.z / CALIBRATE_SAMPLING_COUNT;
+	//Accelerator should boe (0, 0, g) while doing the calibration
+	mpu6050_accel_offset.x = (int16_t)accel_average_cache.x - 0;
+	mpu6050_accel_offset.y = (int16_t)accel_average_cache.y - 0;
+	mpu6050_accel_offset.z = (int16_t)accel_average_cache.z - 8192;
+	//Gyroscope should be (0, 0, 0) while doing the calibration
+	mpu6050_gyro_offset.x = (int16_t)gyro_average_cache.x;
+	mpu6050_gyro_offset.y = (int16_t)gyro_average_cache.y;
+	mpu6050_gyro_offset.z = (int16_t)gyro_average_cache.z;
 }
 
 void mpu6050_read_unscaled_data(vector3d_16_t *accel_raw_data, vector3d_16_t *gyro_raw_data)
