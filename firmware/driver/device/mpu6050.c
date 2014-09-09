@@ -12,8 +12,9 @@
 #define MPU6050_ACCEL_SCALE MPU6050A_4g
 #define MPU6050_GYRO_SCALE MPU6050G_2000dps
 
-#define GYRO_SAMPLING_COUNT 10000
+#define CALIBRATE_SAMPLING_COUNT 10000
 
+vector3d_16_t mpu6050_accel_offset;
 vector3d_16_t mpu6050_gyro_offset;
 
 static void mpu6050_read(uint8_t register_adress, uint8_t *data, int data_count)
@@ -68,43 +69,43 @@ int mpu6050_init()
 	delay_ms(1000);
 
 	/* Calibrate the device */
-	mpu6050_gyro_calibrate();
+	mpu6050_calibrate();
 
 	return 0;
 }
 
-void mpu6050_gyro_calibrate()
+void mpu6050_calibrate()
 {
-	uint8_t buffer[6];
-
+	vector3d_16_t accel_average_cache;
 	vector3d_16_t gyro_average_cache;
+	vector3d_16_t accel_new_sampling_data;
 	vector3d_16_t gyro_new_sampling_data;
 
 	/* Calculate the bias of the gyroscope */
 	int i;
-	for(i = 0; i < GYRO_SAMPLING_COUNT; i++) {
-		/* Get the new gyro data */
-		mpu6050_read(MPU6050_GYRO_XOUT_H, buffer, 6);
-
-		gyro_new_sampling_data.x = (buffer[0] << 8) | buffer[1];
-		gyro_new_sampling_data.y = (buffer[2] << 8) | buffer[3];
-		gyro_new_sampling_data.z = (buffer[4] << 8) | buffer[5];
-	
-		/* Add cache data with new data */
+	for(i = 0; i < CALIBRATE_SAMPLING_COUNT; i++) {
+		mpu6050_read_unscaled_data(&accel_new_sampling_data, &gyro_new_sampling_data);
+ 
+		accel_average_cache.x += accel_new_sampling_data.x;	
+		accel_average_cache.y += accel_new_sampling_data.y;	
+		accel_average_cache.z += accel_new_sampling_data.z;	
 		gyro_average_cache.x += gyro_new_sampling_data.x;
 		gyro_average_cache.y += gyro_new_sampling_data.y;
 		gyro_average_cache.z += gyro_new_sampling_data.z;
 	}
 
 	/* Get the average of all samping datas */
-	mpu6050_gyro_offset.x = gyro_average_cache.x / GYRO_SAMPLING_COUNT;	
-	mpu6050_gyro_offset.y = gyro_average_cache.y / GYRO_SAMPLING_COUNT;
-	mpu6050_gyro_offset.z = gyro_average_cache.z / GYRO_SAMPLING_COUNT;
+	mpu6050_accel_offset.x = accel_average_cache.x / CALIBRATE_SAMPLING_COUNT;
+	mpu6050_accel_offset.y = accel_average_cache.y / CALIBRATE_SAMPLING_COUNT;
+	mpu6050_accel_offset.z = accel_average_cache.z / CALIBRATE_SAMPLING_COUNT;
+	mpu6050_gyro_offset.x = gyro_average_cache.x / CALIBRATE_SAMPLING_COUNT;	
+	mpu6050_gyro_offset.y = gyro_average_cache.y / CALIBRATE_SAMPLING_COUNT;
+	mpu6050_gyro_offset.z = gyro_average_cache.z / CALIBRATE_SAMPLING_COUNT;
 }
 
 void mpu6050_read_unscaled_data(vector3d_16_t *accel_raw_data, vector3d_16_t *gyro_raw_data)
 {
-	uint8_t buffer[14]; //12 for 6 axis high/low byte
+	uint8_t buffer[14];
 
 	/* Get the new data */
 	mpu6050_read(MPU6050_ACCEL_XOUT_H, buffer, 14); 
@@ -117,11 +118,16 @@ void mpu6050_read_unscaled_data(vector3d_16_t *accel_raw_data, vector3d_16_t *gy
 	gyro_raw_data->z = (buffer[12] << 8) | buffer[13];
 }
 
-void mpu6050_gyro_fix_bias(vector3d_16_t *accel_unscaled_data)
+void mpu6050_fix_bias(vector3d_16_t *accel_unscaled_data,
+	vector3d_16_t *gyro_unscaled_data)
 {
-	accel_unscaled_data->x -= mpu6050_gyro_offset.x;
-	accel_unscaled_data->y -= mpu6050_gyro_offset.y;
-	accel_unscaled_data->z -= mpu6050_gyro_offset.z;
+	/* Fix the sensor bias */
+	accel_unscaled_data->x -= mpu6050_accel_offset.x;
+	accel_unscaled_data->y -= mpu6050_accel_offset.y;
+	accel_unscaled_data->z -= mpu6050_accel_offset.z;
+	gyro_unscaled_data->x -= mpu6050_gyro_offset.x;
+	gyro_unscaled_data->y -= mpu6050_gyro_offset.y;
+	gyro_unscaled_data->z -= mpu6050_gyro_offset.z;
 }
 
 void mpu6050_accel_convert_to_scale(vector3d_16_t *accel_unscaled_data,
