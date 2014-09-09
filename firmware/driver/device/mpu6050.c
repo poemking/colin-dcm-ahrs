@@ -18,12 +18,13 @@ vector3d_16_t mpu6050_gyro_offset;
 
 static void mpu6050_read(uint8_t register_adress, uint8_t *data, int data_count)
 {
-	i2c_read(I2C1, MPU6050_DEVICE_ADDRESS, register_adress, data, data_count);
+	while(i2c_read(I2C1, MPU6050_DEVICE_ADDRESS, register_adress, data, data_count)
+		== I2C_TIMEOUT);
 }
 
 static void mpu6050_write(uint8_t register_address, uint8_t data)
 {
-	i2c_write(I2C1, MPU6050_DEVICE_ADDRESS, register_address, data);
+	while(i2c_write(I2C1, MPU6050_DEVICE_ADDRESS, register_address, data) == I2C_TIMEOUT);
 }
 
 uint8_t mpu6050_read_who_am_i()
@@ -67,7 +68,7 @@ int mpu6050_init()
 	delay_ms(1000);
 
 	/* Calibrate the device */
-	//mpu6050_gyro_calibrate();
+	mpu6050_gyro_calibrate();
 
 	return 0;
 }
