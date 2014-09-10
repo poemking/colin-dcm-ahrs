@@ -8,7 +8,7 @@
 void usart3_init(int baudrate)
 {
 	/* RCC clock initialization */
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
 
 	/* GPIO initialazition */
@@ -20,10 +20,10 @@ void usart3_init(int baudrate)
 		.GPIO_PuPd = GPIO_PuPd_UP
 	};
 
-	GPIO_PinAFConfig(GPIOC, GPIO_PinSource10, GPIO_AF_USART3);
-	GPIO_PinAFConfig(GPIOC, GPIO_PinSource11, GPIO_AF_USART3);
+	GPIO_PinAFConfig(GPIOB, GPIO_PinSource10, GPIO_AF_USART3);
+	GPIO_PinAFConfig(GPIOB, GPIO_PinSource11, GPIO_AF_USART3);
 
-	GPIO_Init(GPIOC, &GPIO_InitStruct);
+	GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 	/* USART initialazition */
 	USART_InitTypeDef USART_InitStruct = {
