@@ -50,6 +50,7 @@ FREERTOS=./lib/FreeRTOS
 COMMON=./common
 DRIVER=./driver
 AHRS=./ahrs
+TELEMETRY=./telemetry
 
 #======================================================================#
 #Source code
@@ -97,6 +98,9 @@ CFLAGS+=-I$(AHRS)
 SRC+=$(AHRS)/main.c \
 	$(AHRS)/moving_average.c \
 	$(AHRS)/ahrs.c
+
+CFLAGS+=-I$(TELEMETRY)
+SRC+=$(TELEMETRY)/telemetry.c
 
 CFLAGS+=-I./
 

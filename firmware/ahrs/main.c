@@ -9,6 +9,7 @@
 #include "led.h"
 
 #include "mpu6050.h"
+#include "telemetry.h"
 
 #include "delay.h"
 #include "vector_space.h"
@@ -73,7 +74,21 @@ void ahrs_task()
 void usart_plot_task()
 {
 	while(1) {
-		led_on(LED2);
+		led_off(LED2); //Turn off the LED before the trasmission
+
+		uint8_t payload[256] = {'\0'}; //About 64 float variable
+		int payload_count = 0;
+
+		/* Convert the onboard parameter to the byte */
+		//Accelerator raw data
+		payload_count += convert_vector3d_float_to_byte(&accel_raw_data, payload + payload_count);
+		//Gyroscope raw data
+		payload_count += convert_vector3d_float_to_byte(&gyro_raw_data, payload + payload_count);
+
+		/* Send the onboard parameter */
+		send_onboard_parameter(payload, payload_count);
+
+		led_on(LED2); //Turn on the LED after the transmission
 
 		vTaskDelay(1);
 	}
@@ -101,7 +116,7 @@ int main()
 
 	//USART plot task
 	xTaskCreate(usart_plot_task, (portCHAR *)"USART plot task",
-		1024, NULL, tskIDLE_PRIORITY + 1, NULL);
+		2048, NULL, tskIDLE_PRIORITY + 1, NULL);
 
 
 	/* Start schedule */
