@@ -58,7 +58,7 @@ def matlab_plot_init():
 	#Subplot - accel data
 	plt.subplot(211)
 	plt.xlabel('Time')
-	plt.ylabel('Gravity acceleration')
+	plt.ylabel('Acceleration')
 	plt.plot(0, label='x-axis', color='red')
 	plt.plot(0, label='y-axis', color='blue')
 	plt.plot(0, label='z-axis', color='green')
