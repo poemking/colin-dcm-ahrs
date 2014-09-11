@@ -30,6 +30,7 @@ void send_onboard_parameter(uint8_t *payload, int payload_count)
 	checksum = generate_checksum_byte(payload, payload_count);
 
 	usart3_putc('@'); //Send the start byte
+	usart3_putc((uint8_t)payload_count); //Send the payload count
 
 	//Send the payload data
 	int i;
