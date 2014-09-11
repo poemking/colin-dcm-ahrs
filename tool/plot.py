@@ -1,4 +1,5 @@
 from sys import argv
+from matplotlib import pyplot as plt
 import serial
 import struct
 
@@ -50,7 +51,38 @@ def read_new_data():
 	
 	return 'success'
 
+def matlab_plot_init():
+	plt.ion()
+	plt.figure(figsize=(10,6))
+
+	#Subplot - accel data
+	plt.subplot(211)
+	plt.xlabel('Time')
+	plt.ylabel('Gravity acceleration')
+	plt.plot(0, label='x-axis', color='red')
+	plt.plot(0, label='y-axis', color='blue')
+	plt.plot(0, label='z-axis', color='green')
+	plt.ylim([-4, 4])
+	plt.legend()
+	plt.grid()
+	plt.draw()
+
+	#Subplot - gyro data
+	plt.subplot(212)
+	plt.xlabel('Time')
+	plt.ylabel('Degree per second')
+	plt.ylim([-2000, 2000])
+	plt.plot(0, label='x-axis', color='red')
+	plt.plot(0, label='y-axis', color='blue')
+	plt.plot(0, label='z-axis', color='green')
+	plt.legend()
+	plt.grid()
+	plt.draw()
+
+
 def run():
+	matlab_plot_init()
+
 	while True:
 		if(read_new_data() != 'success'):
 			continue
