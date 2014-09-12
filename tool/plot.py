@@ -4,6 +4,7 @@ from collections import deque
 import serial
 import struct
 import numpy as np
+import threading, time
 
 #Serial port defalut settings
 port = '/dev/ttyUSB1'
@@ -118,29 +119,31 @@ class AnalogPlot:
 
 		plt.draw()
 
-def run():
-	analog_plot = AnalogPlot(200)
-	plot_prescaler = 0
+class SerialReadThread(threading.Thread):
+	def run(self):
+		while True:
+			if(read_new_data() != 'success'):
+				continue
 
-	while True:
-		if(read_new_data() != 'success'):
-			continue
-		plot_prescaler += 1
+			print "\033c"
 
-		if(plot_prescaler == 10):
+			#Print the data
+			print 'Accel raw data'
+			print 'x:%f' %onboard_data_value[0]
+			print 'y:%f' %onboard_data_value[1]
+			print 'z:%f' %onboard_data_value[2]
+			print 'Gyro raw data'
+			print 'x:%f' %onboard_data_value[3]
+			print 'y:%f' %onboard_data_value[4]
+			print 'z:%f' %onboard_data_value[5]
+
+class DataPlotThread(threading.Thread):
+	def run(self):
+		analog_plot = AnalogPlot(200)
+
+		while True:
 			analog_plot.update()
-			plot_prescaler = 0
 
-		print "\033c"
 
-		#Print the data
-		print 'Accel raw data'
-		print 'x:%f' %onboard_data_value[0]
-		print 'y:%f' %onboard_data_value[1]
-		print 'z:%f' %onboard_data_value[2]
-		print 'Gyro raw data'
-		print 'x:%f' %onboard_data_value[3]
-		print 'y:%f' %onboard_data_value[4]
-		print 'z:%f' %onboard_data_value[5]
-
-run()
+SerialReadThread().start()
+DataPlotThread().start()
