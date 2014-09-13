@@ -1,4 +1,5 @@
 from sys import argv
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from collections import deque
@@ -142,7 +143,8 @@ class AnalogPlot:
 		self.gyro_filter_y.set_ydata(self.gyro_filter_y_data)
 		self.gyro_filter_z.set_ydata(self.gyro_filter_z_data)
 
-		plt.draw()
+		ani = animation.FuncAnimation(self.accel_fig, self.accel_raw_z_data, xrange(1, 200), interval=0, blit=True)
+		#plt.draw()
 
 class SerialReadThread(threading.Thread):
 	def run(self):
