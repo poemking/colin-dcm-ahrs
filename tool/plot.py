@@ -1,5 +1,6 @@
 from sys import argv
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 from collections import deque
 import serial
 import struct
@@ -7,14 +8,14 @@ import numpy as np
 import threading, time
 
 #Serial port defalut settings
-port = '/dev/ttyUSB1'
+port = '/dev/ttyUSB0'
 baudrate = 57600
 _serial = serial.Serial(port, baudrate, timeout = 1024)
 
 #Please configure the onboard data at here
 onboard_data_name = ['accel-x.raw', 'accel-y.raw', 'accel-z.raw',
 		     'gyro-x.raw', 'gyro-y.raw', 'gyro-z.raw']
-onboard_data_value = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+onboard_data_value = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 onboard_data_count = 0
 
 def read_new_data():
@@ -65,30 +66,42 @@ class AnalogPlot:
 		self.gyro_raw_x_data = deque([0.0] * plot_data_max_count)
 		self.gyro_raw_y_data = deque([0.0] * plot_data_max_count)
 		self.gyro_raw_z_data = deque([0.0] * plot_data_max_count)
+		self.accel_filter_x_data = deque([0.0] * plot_data_max_count)
+		self.accel_filter_y_data = deque([0.0] * plot_data_max_count)
+		self.accel_filter_z_data = deque([0.0] * plot_data_max_count)
+		self.gyro_filter_x_data = deque([0.0] * plot_data_max_count)
+		self.gyro_filter_y_data = deque([0.0] * plot_data_max_count)
+		self.gyro_filter_z_data = deque([0.0] * plot_data_max_count)
 
 		plt.ion()
-		plt.figure(figsize=(10,6))
+		plt.figure(figsize=(14,8))
 
 		#Subplot - accel data
-		plt.subplot(211)
+		self.accel_fig = plt.subplot(211)
 		plt.xlabel('Time')
 		plt.ylabel('Acceleration')
-		self.accel_raw_x, = plt.plot(self.accel_raw_x_data, label='x-axis', color='red')
-		self.accel_raw_y, = plt.plot(self.accel_raw_y_data, label='y-axis', color='blue')
-		self.accel_raw_z, = plt.plot(self.accel_raw_x_data, label='z-axis', color='green')
+		self.accel_raw_x, = plt.plot(self.accel_raw_x_data, label='raw x-axis', color='red')
+		self.accel_raw_y, = plt.plot(self.accel_raw_y_data, label='raw y-axis', color='blue')
+		self.accel_raw_z, = plt.plot(self.accel_raw_x_data, label='raw z-axis', color='green')
+		self.accel_filter_x, = plt.plot(self.accel_raw_x_data, label='filter x-axis', color='orange')
+		self.accel_filter_y, = plt.plot(self.accel_raw_x_data, label='filter y-axis', color='yellow')
+		self.accel_filter_z, = plt.plot(self.accel_raw_x_data, label='filter z-axis', color='purple')
 		plt.ylim([-4, 4])
 		plt.legend()
 		plt.grid()
 		plt.draw()
 
 		#Subplot - gyro data
-		plt.subplot(212)
+		self.gyro_fig = plt.subplot(212)
 		plt.xlabel('Time')
 		plt.ylabel('Degree per second')
-		plt.ylim([-2000, 2000])
+		plt.ylim([-90, 90])
 		self.gyro_raw_x, = plt.plot(self.gyro_raw_x_data, label='x-axis', color='red')
 		self.gyro_raw_y, = plt.plot(self.gyro_raw_y_data, label='y-axis', color='blue')
 		self.gyro_raw_z, = plt.plot(self.gyro_raw_z_data, label='z-axis', color='green')
+		self.gyro_filter_x, = plt.plot(self.gyro_raw_x_data, label='filter x-axis', color='orange')
+		self.gyro_filter_y, = plt.plot(self.gyro_raw_x_data, label='filter y-axis', color='yellow')
+		self.gyro_filter_z, = plt.plot(self.gyro_raw_x_data, label='filter z-axis', color='purple')
 		plt.legend()
 		plt.grid()
 		plt.draw()
@@ -108,6 +121,12 @@ class AnalogPlot:
 		self.add_new_data(self.gyro_raw_x_data, np.array(onboard_data_value[3]))
 		self.add_new_data(self.gyro_raw_y_data, np.array(onboard_data_value[4]))
 		self.add_new_data(self.gyro_raw_z_data, np.array(onboard_data_value[5]))
+		self.add_new_data(self.accel_filter_x_data, np.array(onboard_data_value[6]))
+		self.add_new_data(self.accel_filter_y_data, np.array(onboard_data_value[7]))
+		self.add_new_data(self.accel_filter_z_data, np.array(onboard_data_value[8]))
+		self.add_new_data(self.gyro_filter_x_data, np.array(onboard_data_value[9]))
+		self.add_new_data(self.gyro_filter_y_data, np.array(onboard_data_value[10]))
+		self.add_new_data(self.gyro_filter_z_data, np.array(onboard_data_value[11]))
 
 		#Plot the new data
 		self.accel_raw_x.set_ydata(self.accel_raw_x_data)
@@ -116,6 +135,12 @@ class AnalogPlot:
 		self.gyro_raw_x.set_ydata(self.gyro_raw_x_data)
 		self.gyro_raw_y.set_ydata(self.gyro_raw_y_data)
 		self.gyro_raw_z.set_ydata(self.gyro_raw_z_data)
+		self.accel_filter_x.set_ydata(self.accel_filter_x_data)
+		self.accel_filter_y.set_ydata(self.accel_filter_y_data)
+		self.accel_filter_z.set_ydata(self.accel_filter_z_data)
+		self.gyro_filter_x.set_ydata(self.gyro_filter_x_data)
+		self.gyro_filter_y.set_ydata(self.gyro_filter_y_data)
+		self.gyro_filter_z.set_ydata(self.gyro_filter_z_data)
 
 		plt.draw()
 
@@ -125,6 +150,9 @@ class SerialReadThread(threading.Thread):
 			if(read_new_data() != 'success'):
 				continue
 
+class PrintOnboardData(threading.Thread):
+	def run(self):
+		while(False):
 			print "\033c"
 
 			#Print the data
@@ -136,6 +164,14 @@ class SerialReadThread(threading.Thread):
 			print 'x:%f' %onboard_data_value[3]
 			print 'y:%f' %onboard_data_value[4]
 			print 'z:%f' %onboard_data_value[5]
+			print 'Accel filter data'
+			print 'x:%f' %onboard_data_value[6]
+			print 'y:%f' %onboard_data_value[7]
+			print 'z:%f' %onboard_data_value[8]
+			print 'Gyro filter data'
+			print 'x:%f' %onboard_data_value[9]
+			print 'y:%f' %onboard_data_value[10]
+			print 'z:%f' %onboard_data_value[11]
 
 class DataPlotThread(threading.Thread):
 	def run(self):
@@ -146,4 +182,5 @@ class DataPlotThread(threading.Thread):
 
 
 SerialReadThread().start()
+PrintOnboardData().start()
 DataPlotThread().start()
