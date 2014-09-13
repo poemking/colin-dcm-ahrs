@@ -26,10 +26,10 @@ vector3d_f_t accel_filtered_data, gyro_filtered_data; //IMU filtered data
 
 void ahrs_task()
 {
-	vector3d_f_t accel_sma_fifo[IMU_SMA_SAMPLING_CNT];
-	vector3d_f_t gyro_sma_fifo[IMU_SMA_SAMPLING_CNT];
+	vector3d_f_t accel_moving_average_fifo[IMU_SMA_SAMPLING_CNT];
+	vector3d_f_t gyro_moving_average_fifo[IMU_SMA_SAMPLING_CNT];
 
-	/* Fill the FIFO of the SMA filter */
+	/* Fill the FIFO of the Moving Average filter */
 	int i;
 	for(i = 0; i < IMU_SMA_SAMPLING_CNT; i++) {
 		/* Get the new sampling data */
@@ -42,12 +42,12 @@ void ahrs_task()
 		mpu6050_gyro_convert_to_scale(&gyro_unscaled_data, &gyro_raw_data);
 
 		/* Push the new sampling data into the FIFO */
-		accel_sma_fifo[i].x = accel_raw_data.x;
-		accel_sma_fifo[i].y = accel_raw_data.y;
-		accel_sma_fifo[i].z = accel_raw_data.z;
-		gyro_sma_fifo[i].x = gyro_raw_data.x;
-		gyro_sma_fifo[i].y = gyro_raw_data.y;
-		gyro_sma_fifo[i].z = gyro_raw_data.z;
+		accel_moving_average_fifo[i].x = accel_raw_data.x;
+		accel_moving_average_fifo[i].y = accel_raw_data.y;
+		accel_moving_average_fifo[i].z = accel_raw_data.z;
+		gyro_moving_average_fifo[i].x = gyro_raw_data.x;
+		gyro_moving_average_fifo[i].y = gyro_raw_data.y;
+		gyro_moving_average_fifo[i].z = gyro_raw_data.z;
 	}	
 
 	while(1) {
@@ -61,10 +61,10 @@ void ahrs_task()
 		mpu6050_accel_convert_to_scale(&accel_unscaled_data, &accel_raw_data);
 		mpu6050_gyro_convert_to_scale(&gyro_unscaled_data, &gyro_raw_data);
 
-		/* filter the IMU raw data (SMA filter) */
-		vector3d_simple_moving_average(accel_raw_data, accel_sma_fifo,
+		/* filter the IMU raw data (Moving Average filter) */
+		vector3d_simple_moving_average(accel_raw_data, accel_moving_average_fifo,
 			&accel_filtered_data, IMU_SMA_SAMPLING_CNT);
-		vector3d_simple_moving_average(gyro_raw_data, gyro_sma_fifo,
+		vector3d_simple_moving_average(gyro_raw_data, gyro_moving_average_fifo,
 			&gyro_filtered_data, IMU_SMA_SAMPLING_CNT);
 
 		vTaskDelay(1);
@@ -84,6 +84,10 @@ void usart_plot_task()
 		payload_count += convert_vector3d_float_to_byte(&accel_raw_data, payload + payload_count);
 		//Gyroscope raw data
 		payload_count += convert_vector3d_float_to_byte(&gyro_raw_data, payload + payload_count);
+		//Accelerator filter data
+		payload_count += convert_vector3d_float_to_byte(&accel_filtered_data, payload + payload_count);
+		//Gyroscope filter data
+		payload_count += convert_vector3d_float_to_byte(&gyro_filtered_data, payload + payload_count);
 
 		/* Send the onboard parameter */
 		send_onboard_parameter(payload, payload_count);
