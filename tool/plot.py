@@ -40,8 +40,9 @@ class AnalogPlot:
 			ncol=3, fancybox=True, shadow=True)
 
 	def animate(self, i):
-		for index in range(0, len(self.line)):
-			self.line[index].set_ydata(self.analog_data[index].data)
+		for index in range(0, len(self.line_numbers)):
+			self.line[index].set_ydata( \
+				self.analog_data[self.line_numbers[index]].data)
 
 		return self.line
 			
@@ -51,7 +52,6 @@ class AnalogPlot:
 		self.line_count = line_count
 		self.current_line_count = 0
 		self.analog_data = analog_data
-		self.current_line_count = 0
 		self.line_numbers = []
 
 	def set_figure(self):		
@@ -62,7 +62,8 @@ class AnalogPlot:
 		self.create_line('y axis (raw data)', 'blue')		
 		self.create_line('z axis (raw data)', 'green')		
 		self.create_line('x axis (filter data)', 'orange')		
-		self.create_line('y axis (filter data)', 'yellow')		
+		self.create_line('y axis (filter data)', 'yellow')	
+	
 		self.create_line('z axis (filter data)', 'purple')		
 		self.show_subplot()
 
