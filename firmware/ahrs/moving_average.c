@@ -64,6 +64,7 @@ void vector3d_weight_moving_average(vector3d_f_t new_sampling_data, vector3d_f_t
 void vector3d_exponential_moving_average(vector3d_f_t new_sampling_data, vector3d_f_t *data_fifo,
 	vector3d_f_t *data_result, int sampling_count)
 {
+	float weight;
 	float alpha, alpha_sum = 0;
 
 	int i;
@@ -74,13 +75,16 @@ void vector3d_exponential_moving_average(vector3d_f_t new_sampling_data, vector3
 		//Calculate the alpha value
 		alpha = 2 / (i + 2);
 
+		//Caluclate the weight value
+		weight = pow(1 - alpha, i + 1);
+
 		//Calculate the alpha sum
-		alpha_sum += pow(alpha, i + 1);
+		alpha_sum += weight;
 
 		//weight the old data without last time dropped then calculate the sum
-		data_result->x += data_fifo[i].x * alpha;
-		data_result->y += data_fifo[i].y * alpha;
-		data_result->z += data_fifo[i].z * alpha;
+		data_result->x += data_fifo[i].x * weight;
+		data_result->y += data_fifo[i].y * weight;
+		data_result->z += data_fifo[i].z * weight;
 	}
 
 	/* Put new data at the last of the FIFO */
@@ -89,13 +93,16 @@ void vector3d_exponential_moving_average(vector3d_f_t new_sampling_data, vector3
 	//Calculate the alpha value
 	alpha = 2 / (sampling_count + 1);
 
+	//Caluclate the weight value
+	weight = pow(1 - alpha, i + 1);
+
 	//Calculate the alpha sum
-	alpha_sum += pow(alpha, sampling_count);
+	alpha_sum += weight;
 
 	//Add the new data into the FIFO sum
-	data_result->x += new_sampling_data.x * alpha;
-	data_result->y += new_sampling_data.y * alpha;
-	data_result->z += new_sampling_data.z * alpha;
+	data_result->x += new_sampling_data.x * weight;
+	data_result->y += new_sampling_data.y * weight;
+	data_result->z += new_sampling_data.z * weight;
 
 	/* Caluculate the average of the new FIFO */
 	data_result->x /= alpha_sum;
