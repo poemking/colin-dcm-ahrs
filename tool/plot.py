@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
+import argparse
 import threading
 import serial
 import struct
@@ -52,7 +53,7 @@ class AnalogPlot:
 
 		plt.subplot(211)
 		plt.ylabel('Acceleration (g)')
-		plt.ylim([-4, 4])
+		plt.ylim([-1.0, 2.0])
 		self.create_line('x axis (raw data)', 'red')		
 		self.create_line('y axis (raw data)', 'blue')		
 		self.create_line('z axis (raw data)', 'green')		
@@ -63,7 +64,7 @@ class AnalogPlot:
 
 		plt.subplot(212)
 		plt.ylabel('Degree per second (dps)')
-		plt.ylim([-2000, 2000])
+		plt.ylim([-450, 450])
 		self.create_line('x axis (raw data)', 'red')		
 		self.create_line('y axis (raw data)', 'blue')		
 		self.create_line('z axis (raw data)', 'green')		
@@ -116,10 +117,25 @@ class AnalogPlot:
 analog_data = [AnalogData(200) for i in range(0, 12)]
 analog_plot = AnalogPlot(12, analog_data)
 
+def read_argument():
+	parser = argparse.ArgumentParser()
+
+	parser.add_argument('--baudrate', help='The baudrate speed of the serial, E.G:--baudrate 57600', default='57600')
+	parser.add_argument('--port', help='The target serial port, E.G:--port /dev/ttyUSB0', default='/dev/ttyUSB0')
+	parser.add_argument('--line', nargs='+', help='Assign line numbers that you want to print only, E.G:--line 1 2 5', \
+		default=-1, type=int)
+
+	args = parser.parse_args()
+
+	baudrate = int(args.baudrate)
+	port = args.port
+	_serial = serial.Serial(port, baudrate, timeout = 1024)
+
 class SerialReadThread(threading.Thread):
 	def run(self):
 		while True:
 			analog_plot.read_new_data()
 
+read_argument()
 SerialReadThread().start()
 analog_plot.show()
