@@ -33,7 +33,8 @@ class AnalogPlot:
 
 	def show_subplot(self):
 		plt.grid()
-		plt.legend()
+		plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.05), \
+			ncol=3, fancybox=True, shadow=True)
 
 	def animate(self, i):
 		for index in range(0, self.line_count):
@@ -42,7 +43,7 @@ class AnalogPlot:
 		return self.line
 			
 	def __init__(self, line_count, analog_data):
-		self.figure = plt.figure()
+		self.figure = plt.figure(figsize=(14,8))
 		self.line = []
 		self.line_count = line_count
 		self.current_line_count = 0
