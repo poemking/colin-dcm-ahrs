@@ -82,10 +82,10 @@ void usart_plot_task()
 		/* Convert the onboard parameter to the byte */
 		//Accelerator raw data
 		payload_count += convert_vector3d_float_to_byte(&accel_raw_data, payload + payload_count);
-		//Gyroscope raw data
-		payload_count += convert_vector3d_float_to_byte(&gyro_raw_data, payload + payload_count);
 		//Accelerator filter data
 		payload_count += convert_vector3d_float_to_byte(&accel_filtered_data, payload + payload_count);
+		//Gyroscope raw data
+		payload_count += convert_vector3d_float_to_byte(&gyro_raw_data, payload + payload_count);
 		//Gyroscope filter data
 		payload_count += convert_vector3d_float_to_byte(&gyro_filtered_data, payload + payload_count);
 
