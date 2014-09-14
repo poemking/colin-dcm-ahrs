@@ -1,7 +1,15 @@
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-from collections import deque
 import numpy as np
+import serial
+import struct
+from collections import deque
+
+
+#Serial port defalut settings
+port = '/dev/ttyUSB0'
+baudrate = 57600
+_serial = serial.Serial(port, baudrate, timeout = 1024)
 
 class AnalogData:
 	def __init__(self, max_count):
@@ -17,25 +25,29 @@ class AnalogData:
 
 class AnalogPlot:
 	def create_line(self, label_name, line_color):
-		self.line.append(plt.plot(self.analog_data[self.current_line_count], \
-			label=label_name, color=line_color)[0])
-	
+		self.line.append(plt.plot(self.analog_data[self.current_line_count].data, \
+			label=label_name, color=line_color, animated=True)[0])
+
+		self.current_line_count += 1
+
 	def show_subplot(self):
 		plt.grid()
 		plt.legend()
 
-	def animate(self, index):
-		self.line[index].set_ydata(self.analog_data[index].data)
-		return self.line[index],
+	def animate(self, i):
+		self.read_new_data()
+		for index in range(0, self.line_count):
+			self.line[index].set_ydata(self.analog_data[index].data)
+
+		return self.line
 			
 	def __init__(self, figure_count, line_count, analog_data):
-		figure = plt.figure()
+		self.figure = plt.figure()
 		self.line = []
+		self.line_count = line_count
 		self.current_line_count = 0
 		self.analog_data = analog_data
-
-		plt.ion()
-		plt.figure(figsize=(14,8))
+		self.current_line_count = 0
 
 		plt.subplot(211)
 		plt.ylabel('Acceleration (g)')
@@ -45,7 +57,7 @@ class AnalogPlot:
 		self.create_line('z axis (raw data)', 'green')		
 		self.create_line('x axis (filter data)', 'orange')		
 		self.create_line('y axis (filter data)', 'yellow')		
-		self.create_line('z axis (filter data)', 'blue')		
+		self.create_line('z axis (filter data)', 'purple')		
 		self.show_subplot()
 
 		plt.subplot(212)
@@ -56,20 +68,57 @@ class AnalogPlot:
 		self.create_line('z axis (raw data)', 'green')		
 		self.create_line('x axis (filter data)', 'orange')		
 		self.create_line('y axis (filter data)', 'yellow')		
-		self.create_line('z axis (filter data)', 'blue')		
+		self.create_line('z axis (filter data)', 'purple')		
 		self.show_subplot()
 
-		animation.FuncAnimation(figure, self.animate, np.arange(0, 200), \
+	def show(self):
+		ani = animation.FuncAnimation(self.figure, self.animate, np.arange(0, 200), \
 			interval=0, blit=True)
 
-		plt.draw()
+		plt.show()
+
+	def read_new_data(self):
+		while True:
+			buffer = []
+			checksum = 0
+
+			if _serial.read() != '@': #Wait for start byte
+				continue
+
+			#Receive the second byte, payload count
+			payload_count, =  struct.unpack("B", _serial.read(1))
+
+			for i in range(0, payload_count):
+				#Get the new byte
+				buffer.append(_serial.read())
+
+				#Cast the receive byte then calculate the checksum
+				buffer_checksum ,= struct.unpack("B", buffer[i])
+				checksum ^= buffer_checksum
+
+			#Receive the checksum byte then exam it
+			checksum_byte ,= struct.unpack("B", _serial.read())
+			if checksum_byte != checksum:
+				return 'fail'
+
+			for i in range(0, self.line_count):
+				#Prepare the byte data (float = 4 bytes)
+				float_data = ''.join([buffer[i * 4], buffer[i * 4 + 1], buffer[i * 4 + 2], buffer[i * 4 + 3]])
+				#Update the unpack float data
+				self.analog_data[i].add(np.asarray(struct.unpack("f", float_data)))
+
+			break
+
+		return 'success'
 
 def main():
+	#Analog plot
 	analog_data = [AnalogData(200) for i in range(0, 12)]
-
 	analog_plot = AnalogPlot(2, 12, analog_data)
 
-	while True:
-		pass
+	analog_plot.show()
+
+	while False:
+		analog_plot.read_new_data()
 
 main()
