@@ -99,9 +99,9 @@ void mpu6050_calibrate()
 	mpu6050_accel_offset.y = (int16_t)accel_average_cache.y - 0;
 	mpu6050_accel_offset.z = (int16_t)accel_average_cache.z - 8192;
 	//Gyroscope should be (0, 0, 0) while doing the calibration
-	mpu6050_gyro_offset.x = (int16_t)gyro_average_cache.x;
-	mpu6050_gyro_offset.y = (int16_t)gyro_average_cache.y;
-	mpu6050_gyro_offset.z = (int16_t)gyro_average_cache.z;
+	mpu6050_gyro_offset.x = (int16_t)gyro_average_cache.x - 0;
+	mpu6050_gyro_offset.y = (int16_t)gyro_average_cache.y - 0;
+	mpu6050_gyro_offset.z = (int16_t)gyro_average_cache.z - 0;
 }
 
 void mpu6050_read_unscaled_data(vector3d_16_t *accel_raw_data, vector3d_16_t *gyro_raw_data)
