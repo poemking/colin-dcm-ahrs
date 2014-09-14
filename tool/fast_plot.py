@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
+import threading
 import serial
 import struct
 from collections import deque
@@ -35,13 +36,12 @@ class AnalogPlot:
 		plt.legend()
 
 	def animate(self, i):
-		self.read_new_data()
 		for index in range(0, self.line_count):
 			self.line[index].set_ydata(self.analog_data[index].data)
 
 		return self.line
 			
-	def __init__(self, figure_count, line_count, analog_data):
+	def __init__(self, line_count, analog_data):
 		self.figure = plt.figure()
 		self.line = []
 		self.line_count = line_count
@@ -111,14 +111,14 @@ class AnalogPlot:
 
 		return 'success'
 
-def main():
-	#Analog plot
-	analog_data = [AnalogData(200) for i in range(0, 12)]
-	analog_plot = AnalogPlot(2, 12, analog_data)
+#Analog plot
+analog_data = [AnalogData(200) for i in range(0, 12)]
+analog_plot = AnalogPlot(12, analog_data)
 
-	analog_plot.show()
+class SerialReadThread(threading.Thread):
+	def run(self):
+		while True:
+			analog_plot.read_new_data()
 
-	while False:
-		analog_plot.read_new_data()
-
-main()
+SerialReadThread().start()
+analog_plot.show()
