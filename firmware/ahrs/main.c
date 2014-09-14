@@ -61,11 +61,21 @@ void ahrs_task()
 		mpu6050_accel_convert_to_scale(&accel_unscaled_data, &accel_raw_data);
 		mpu6050_gyro_convert_to_scale(&gyro_unscaled_data, &gyro_raw_data);
 
+		#if 0
 		/* filter the IMU raw data (Moving Average filter) */
 		vector3d_simple_moving_average(accel_raw_data, accel_moving_average_fifo,
 			&accel_filtered_data, IMU_SMA_SAMPLING_CNT);
 		vector3d_simple_moving_average(gyro_raw_data, gyro_moving_average_fifo,
 			&gyro_filtered_data, IMU_SMA_SAMPLING_CNT);
+		#endif
+
+		#if 1
+		/* filter the IMU raw data (Weight Average filter) */
+		vector3d_weight_moving_average(accel_raw_data, accel_moving_average_fifo,
+			&accel_filtered_data, IMU_SMA_SAMPLING_CNT);
+		vector3d_weight_moving_average(gyro_raw_data, gyro_moving_average_fifo,
+			&gyro_filtered_data, IMU_SMA_SAMPLING_CNT);
+		#endif
 
 		vTaskDelay(1);
 	}
