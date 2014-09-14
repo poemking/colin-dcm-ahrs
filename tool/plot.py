@@ -27,8 +27,10 @@ class AnalogData:
 
 class AnalogPlot:
 	def create_line(self, label_name, line_color):
-		self.line.append(plt.plot(self.analog_data[self.current_line_count].data, \
-			label=label_name, color=line_color, animated=True)[0])
+		for i in range(0, len(self.line_numbers)):
+			if self.line_numbers[i] == self.current_line_count:
+				self.line.append(plt.plot(self.analog_data[self.current_line_count].data, \
+					label=label_name, color=line_color, animated=True)[0])
 
 		self.current_line_count += 1
 
@@ -38,7 +40,7 @@ class AnalogPlot:
 			ncol=3, fancybox=True, shadow=True)
 
 	def animate(self, i):
-		for index in range(0, self.line_count):
+		for index in range(0, len(self.line)):
 			self.line[index].set_ydata(self.analog_data[index].data)
 
 		return self.line
@@ -50,7 +52,9 @@ class AnalogPlot:
 		self.current_line_count = 0
 		self.analog_data = analog_data
 		self.current_line_count = 0
+		self.line_numbers = []
 
+	def set_figure(self):		
 		plt.subplot(211)
 		plt.ylabel('Acceleration (g)')
 		plt.ylim([-1.0, 2.0])
@@ -72,6 +76,10 @@ class AnalogPlot:
 		self.create_line('y axis (filter data)', 'yellow')		
 		self.create_line('z axis (filter data)', 'purple')		
 		self.show_subplot()
+
+	def set_show_line(self, line_numbers):
+		self.line_numbers = line_numbers
+		self.set_figure()
 
 	def show(self):
 		ani = animation.FuncAnimation(self.figure, self.animate, np.arange(0, 200), \
@@ -122,14 +130,21 @@ def read_argument():
 
 	parser.add_argument('--baudrate', help='The baudrate speed of the serial, E.G:--baudrate 57600', default='57600')
 	parser.add_argument('--port', help='The target serial port, E.G:--port /dev/ttyUSB0', default='/dev/ttyUSB0')
-	parser.add_argument('--line', nargs='+', help='Assign line numbers that you want to print only, E.G:--line 1 2 5', \
+	parser.add_argument('--line', nargs='+', help='Assign line numbers that you want to draw only, E.G:--line 1 2 5', \
 		default=-1, type=int)
 
 	args = parser.parse_args()
 
+	#Set the serial
 	baudrate = int(args.baudrate)
 	port = args.port
 	_serial = serial.Serial(port, baudrate, timeout = 1024)
+
+	#Set the analog plot
+	if args.line != -1:
+		analog_plot.set_show_line(args.line)
+	else:
+		analog_plot.set_show_line([i for i in range(0, 12)])
 
 class SerialReadThread(threading.Thread):
 	def run(self):
