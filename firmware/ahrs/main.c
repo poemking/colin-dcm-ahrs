@@ -24,10 +24,10 @@
 #define IMU_FILTER USE_EMA_FILTER
 
 /* IMU unscaled data */
-vector3d_16_t accel_unscaled_data, gyro_unscaled_data; //IMU unscaled data
+vector3d_16_t accel_unscaled_data, gyro_unscaled_data;
 
 /* IMU scaled data */
-vector3d_f_t accel_raw_data, gyro_raw_data; //IMU raw data
+vector3d_f_t accel_raw_data, gyro_raw_data;
 /* Filter data */
 #if IMU_FILTER == USE_SMA_FILTER
 vector3d_f_t accel_sma_filter_data, gyro_sma_filter_data;
