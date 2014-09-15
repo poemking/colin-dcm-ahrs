@@ -57,25 +57,20 @@ class AnalogPlot:
 	def set_figure(self):		
 		plt.subplot(211)
 		plt.ylabel('Acceleration (g)')
-		plt.ylim([-1.0, 2.0])
-		self.create_line('x axis (raw data)', 'red')		
-		self.create_line('y axis (raw data)', 'blue')		
-		self.create_line('z axis (raw data)', 'green')		
-		self.create_line('x axis (filter data)', 'orange')		
-		self.create_line('y axis (filter data)', 'yellow')	
-	
-		self.create_line('z axis (filter data)', 'purple')		
+		plt.ylim([-1.5, 1.5])
+		self.create_line('Raw data', 'red')		
+		self.create_line('SMA data', 'blue')		
+		self.create_line('WMA data', 'green')		
+		self.create_line('EMA data', 'purple')		
 		self.show_subplot()
 
 		plt.subplot(212)
 		plt.ylabel('Degree per second (dps)')
 		plt.ylim([-450, 450])
-		self.create_line('x axis (raw data)', 'red')		
-		self.create_line('y axis (raw data)', 'blue')		
-		self.create_line('z axis (raw data)', 'green')		
-		self.create_line('x axis (filter data)', 'orange')		
-		self.create_line('y axis (filter data)', 'yellow')		
-		self.create_line('z axis (filter data)', 'purple')		
+		self.create_line('Raw data', 'red')		
+		self.create_line('SMA data', 'blue')		
+		self.create_line('WMA data', 'green')		
+		self.create_line('EMA data', 'purple')		
 		self.show_subplot()
 
 	def set_show_line(self, line_numbers):
@@ -123,8 +118,8 @@ class AnalogPlot:
 		return 'success'
 
 #Analog plot
-analog_data = [AnalogData(200) for i in range(0, 12)]
-analog_plot = AnalogPlot(12, analog_data)
+analog_data = [AnalogData(200) for i in range(0, 8)]
+analog_plot = AnalogPlot(8, analog_data)
 
 def read_argument():
 	parser = argparse.ArgumentParser()
@@ -145,7 +140,7 @@ def read_argument():
 	if args.line != -1:
 		analog_plot.set_show_line(args.line)
 	else:
-		analog_plot.set_show_line([i for i in range(0, 12)])
+		analog_plot.set_show_line([i for i in range(0, 8)])
 
 class SerialReadThread(threading.Thread):
 	def run(self):
