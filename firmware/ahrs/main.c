@@ -79,7 +79,7 @@ void ahrs_task()
 			&gyro_filtered_data, IMU_SMA_SAMPLING_CNT);
 		#endif
 
-		#if 1
+		#if 0
 		/* filter the IMU raw data (Weight Moving Average filter) */
 		vector3d_weight_moving_average(accel_raw_data, accel_moving_average_fifo,
 			&accel_filtered_data, IMU_SMA_SAMPLING_CNT);
@@ -111,11 +111,11 @@ void usart_plot_task()
 		//Accelerator raw data
 		payload_count += convert_vector3d_float_to_byte(&accel_raw_data, payload + payload_count);
 		//Accelerator filter data
-		payload_count += convert_vector3d_float_to_byte(&accel_filtered_data, payload + payload_count);
+		payload_count += convert_vector3d_float_to_byte(&accel_ema_filter_data, payload + payload_count);
 		//Gyroscope raw data
 		payload_count += convert_vector3d_float_to_byte(&gyro_raw_data, payload + payload_count);
 		//Gyroscope filter data
-		payload_count += convert_vector3d_float_to_byte(&gyro_filtered_data, payload + payload_count);
+		payload_count += convert_vector3d_float_to_byte(&gyro_ema_filter_data, payload + payload_count);
 
 		/* Send the onboard parameter */
 		send_onboard_parameter(payload, payload_count);
