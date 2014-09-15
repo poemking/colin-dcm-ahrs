@@ -73,9 +73,9 @@ void ahrs_task()
 		#if IMU_FILTER == USE_EMA_FILTER
 		/* Filter the data with EMA filter (Make the filter stable) */
 		vector3d_exponential_moving_average(accel_raw_data, &accel_ema_last_data,
-			&accel_ema_filter_data, 0.01);
+			&accel_ema_filter_data, 0.01725);
 		vector3d_exponential_moving_average(gyro_raw_data, &gyro_ema_last_data,
-			&gyro_ema_filter_data, 0.01);
+			&gyro_ema_filter_data, 0.01725);
 		#endif
 	}	
 
@@ -109,9 +109,9 @@ void ahrs_task()
 		#if IMU_FILTER == USE_EMA_FILTER
 		/* filter the IMU raw data (Exponential Moving Average filter) */
 		vector3d_exponential_moving_average(accel_raw_data, &accel_ema_last_data,
-			&accel_ema_filter_data, 0.01);
+			&accel_ema_filter_data, 0.01725);
 		vector3d_exponential_moving_average(gyro_raw_data, &gyro_ema_last_data,
-			&gyro_ema_filter_data, 0.01);
+			&gyro_ema_filter_data, 0.01725);
 		#endif
 
 		vTaskDelay(1);
