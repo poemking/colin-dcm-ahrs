@@ -17,25 +17,41 @@
 
 #define IMU_SMA_SAMPLING_CNT 400
 
+#define USE_SMA_FILTER 0
+#define USE_WMA_FILTER 1
+#define USE_EMA_FILTER 2
+
+#define IMU_FILTER USE_EMA_FILTER
+
 /* IMU unscaled data */
 vector3d_16_t accel_unscaled_data, gyro_unscaled_data; //IMU unscaled data
 
 /* IMU scaled data */
 vector3d_f_t accel_raw_data, gyro_raw_data; //IMU raw data
 /* Filter data */
-vector3d_f_t accel_filtered_data, gyro_filtered_data;
+#if IMU_FILTER == USE_SMA_FILTER
+vector3d_f_t accel_sma_filter_data, gyro_sma_filter_data;
+#endif
+#if IMU_FILTER == USE_WMA_FILTER
+vector3d_f_t accel_wma_filter_data, gyro_wma_filter_data;
+#endif
+#if IMU_FILTER == USE_EMA_FILTER
 vector3d_f_t accel_ema_filter_data, gyro_ema_filter_data;
+#endif
 
 void ahrs_task()
 {
+	#if (IMU_FILTER == USE_SMA_DATA) || (IMU_FILTER == USE_WMA_FILTER)
 	vector3d_f_t accel_moving_average_fifo[IMU_SMA_SAMPLING_CNT];
 	vector3d_f_t gyro_moving_average_fifo[IMU_SMA_SAMPLING_CNT];
-
+	#elif IMU_FILTER == USE_EMA_FILTER
 	vector3d_f_t accel_ema_last_data, gyro_ema_last_data;
+	#endif
 
 	/* Prepare the Moving Average filter data */
 	int i;
 	for(i = 0; i < IMU_SMA_SAMPLING_CNT; i++) {
+		#if (IMU_FILTER == USE_SMA_DATA) || (IMU_FILTER == USE_WMA_FILTER)
 		/* Get the new sampling data */
 		mpu6050_read_unscaled_data(&accel_unscaled_data, &gyro_unscaled_data);
 
@@ -52,12 +68,15 @@ void ahrs_task()
 		gyro_moving_average_fifo[i].x = gyro_raw_data.x;
 		gyro_moving_average_fifo[i].y = gyro_raw_data.y;
 		gyro_moving_average_fifo[i].z = gyro_raw_data.z;
+		#endif
 
+		#if IMU_FILTER == USE_EMA_FILTER
 		/* Filter the data with EMA filter (Make the filter stable) */
 		vector3d_exponential_moving_average(accel_raw_data, &accel_ema_last_data,
 			&accel_ema_filter_data, 0.01);
 		vector3d_exponential_moving_average(gyro_raw_data, &gyro_ema_last_data,
 			&gyro_ema_filter_data, 0.01);
+		#endif
 	}	
 
 	while(1) {
@@ -71,23 +90,23 @@ void ahrs_task()
 		mpu6050_accel_convert_to_scale(&accel_unscaled_data, &accel_raw_data);
 		mpu6050_gyro_convert_to_scale(&gyro_unscaled_data, &gyro_raw_data);
 
-		#if 0
+		#if IMU_FILTER == USE_SMA_FILTER
 		/* filter the IMU raw data (Simple Moving Average filter) */
 		vector3d_simple_moving_average(accel_raw_data, accel_moving_average_fifo,
-			&accel_filtered_data, IMU_SMA_SAMPLING_CNT);
+			&accel_sma_filter_data, IMU_SMA_SAMPLING_CNT);
 		vector3d_simple_moving_average(gyro_raw_data, gyro_moving_average_fifo,
-			&gyro_filtered_data, IMU_SMA_SAMPLING_CNT);
+			&gyro_sma_filter_data, IMU_SMA_SAMPLING_CNT);
 		#endif
 
-		#if 0
+		#if IMU_FILTER == USE_WMA_FILTER
 		/* filter the IMU raw data (Weight Moving Average filter) */
 		vector3d_weight_moving_average(accel_raw_data, accel_moving_average_fifo,
-			&accel_filtered_data, IMU_SMA_SAMPLING_CNT);
+			&accel_wma_filter_data, IMU_SMA_SAMPLING_CNT);
 		vector3d_weight_moving_average(gyro_raw_data, gyro_moving_average_fifo,
-			&gyro_filtered_data, IMU_SMA_SAMPLING_CNT);
+			&gyro_wma_filter_data, IMU_SMA_SAMPLING_CNT);
 		#endif
 
-		#if 1
+		#if IMU_FILTER == USE_EMA_FILTER
 		/* filter the IMU raw data (Exponential Moving Average filter) */
 		vector3d_exponential_moving_average(accel_raw_data, &accel_ema_last_data,
 			&accel_ema_filter_data, 0.01);
