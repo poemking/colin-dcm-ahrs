@@ -60,3 +60,12 @@ void vector3d_weight_moving_average(vector3d_f_t new_sampling_data, vector3d_f_t
 	data_result->y /= (sampling_count * (sampling_count + 1) / 2);
 	data_result->z /= (sampling_count * (sampling_count + 1) / 2);
 }
+
+void vector3d_exponential_moving_average(vector3d_f_t new_sampling_data, vector3d_f_t *last_sampling_data,
+	vector3d_f_t *data_result, float alpha)
+{
+	data_result->x = (new_sampling_data.x * alpha) + (last_sampling_data->x * (1 - alpha));
+	data_result->y = (new_sampling_data.y * alpha) + (last_sampling_data->y * (1 - alpha));
+	data_result->z = (new_sampling_data.z * alpha) + (last_sampling_data->z * (1 - alpha));
+}
+

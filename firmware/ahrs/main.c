@@ -22,14 +22,18 @@ vector3d_16_t accel_unscaled_data, gyro_unscaled_data; //IMU unscaled data
 
 /* IMU scaled data */
 vector3d_f_t accel_raw_data, gyro_raw_data; //IMU raw data
-vector3d_f_t accel_filtered_data, gyro_filtered_data; //IMU filtered data
+/* Filter data */
+vector3d_f_t accel_filtered_data, gyro_filtered_data;
+vector3d_f_t accel_ema_filter_data, gyro_ema_filter_data;
 
 void ahrs_task()
 {
 	vector3d_f_t accel_moving_average_fifo[IMU_SMA_SAMPLING_CNT];
 	vector3d_f_t gyro_moving_average_fifo[IMU_SMA_SAMPLING_CNT];
 
-	/* Fill the FIFO of the Moving Average filter */
+	vector3d_f_t accel_ema_last_data, gyro_ema_last_data;
+
+	/* Prepare the Moving Average filter data */
 	int i;
 	for(i = 0; i < IMU_SMA_SAMPLING_CNT; i++) {
 		/* Get the new sampling data */
@@ -41,13 +45,19 @@ void ahrs_task()
 		mpu6050_accel_convert_to_scale(&accel_unscaled_data, &accel_raw_data);
 		mpu6050_gyro_convert_to_scale(&gyro_unscaled_data, &gyro_raw_data);
 
-		/* Push the new sampling data into the FIFO */
+		/* Prepare the Moving Average FIFO (SMA, WMA) */
 		accel_moving_average_fifo[i].x = accel_raw_data.x;
 		accel_moving_average_fifo[i].y = accel_raw_data.y;
 		accel_moving_average_fifo[i].z = accel_raw_data.z;
 		gyro_moving_average_fifo[i].x = gyro_raw_data.x;
 		gyro_moving_average_fifo[i].y = gyro_raw_data.y;
 		gyro_moving_average_fifo[i].z = gyro_raw_data.z;
+
+		/* Filter the data with EMA filter (Make the filter stable) */
+		vector3d_exponential_moving_average(accel_raw_data, &accel_ema_last_data,
+			&accel_ema_filter_data, 0.9);
+		vector3d_exponential_moving_average(gyro_raw_data, &gyro_ema_last_data,
+			&gyro_ema_filter_data, 0.9);
 	}	
 
 	while(1) {
@@ -77,8 +87,12 @@ void ahrs_task()
 			&gyro_filtered_data, IMU_SMA_SAMPLING_CNT);
 		#endif
 
-		#if 0
+		#if 1
 		/* filter the IMU raw data (Exponential Moving Average filter) */
+		vector3d_exponential_moving_average(accel_raw_data, &accel_ema_last_data,
+			&accel_ema_filter_data, 0.9);
+		vector3d_exponential_moving_average(gyro_raw_data, &gyro_ema_last_data,
+			&gyro_ema_filter_data, 0.9);
 		#endif
 
 		vTaskDelay(1);
