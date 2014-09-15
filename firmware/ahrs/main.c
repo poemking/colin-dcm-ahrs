@@ -79,10 +79,6 @@ void ahrs_task()
 
 		#if 0
 		/* filter the IMU raw data (Exponential Moving Average filter) */
-		vector3d_exponential_moving_average(accel_raw_data, accel_moving_average_fifo,
-			&accel_filtered_data, IMU_SMA_SAMPLING_CNT);
-		vector3d_exponential_moving_average(gyro_raw_data, gyro_moving_average_fifo,
-			&gyro_filtered_data, IMU_SMA_SAMPLING_CNT);
 		#endif
 
 		vTaskDelay(1);
