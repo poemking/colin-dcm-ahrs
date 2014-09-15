@@ -15,7 +15,7 @@
 #include "vector_space.h"
 #include "moving_average.h"
 
-#define IMU_SMA_SAMPLING_CNT 100
+#define IMU_SMA_SAMPLING_CNT 400
 
 /* IMU unscaled data */
 vector3d_16_t accel_unscaled_data, gyro_unscaled_data; //IMU unscaled data
