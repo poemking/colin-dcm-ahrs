@@ -97,10 +97,12 @@ SRC+=$(DRIVER)/device/mpu6050.c
 CFLAGS+=-I$(AHRS)
 SRC+=$(AHRS)/main.c \
 	$(AHRS)/moving_average.c \
-	$(AHRS)/ahrs.c
+	$(AHRS)/ahrs.c \
+	$(AHRS)/ahrs_task.c
 
 CFLAGS+=-I$(TELEMETRY)
-SRC+=$(TELEMETRY)/telemetry.c
+SRC+=$(TELEMETRY)/telemetry.c \
+	$(TELEMETRY)/telemetry_task.c
 
 CFLAGS+=-I./
 
