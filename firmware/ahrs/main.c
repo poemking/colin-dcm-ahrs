@@ -121,7 +121,7 @@ void ahrs_task()
 void usart_plot_task()
 {
 	while(1) {
-		led_off(LED2); //Turn off the LED before the trasmission
+		led_off(LED3); //Turn off the LED before the trasmission
 
 		uint8_t payload[256] = {'\0'}; //About 64 float variable
 		int payload_count = 0;
@@ -139,7 +139,7 @@ void usart_plot_task()
 		/* Send the onboard parameter */
 		send_onboard_parameter(payload, payload_count);
 
-		led_on(LED2); //Turn on the LED after the transmission
+		led_on(LED3); //Turn on the LED after the transmission
 
 		vTaskDelay(1);
 	}
