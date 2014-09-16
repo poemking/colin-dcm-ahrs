@@ -80,6 +80,8 @@ void ahrs_task()
 	}	
 
 	while(1) {
+		led_off(LED2); //Turn off the LED before calculating the AHRS information
+
 		/* Get the new IMU unscaled raw data */
 		mpu6050_read_unscaled_data(&accel_unscaled_data, &gyro_unscaled_data);
 
@@ -113,6 +115,8 @@ void ahrs_task()
 		vector3d_exponential_moving_average(gyro_raw_data, &gyro_ema_last_data,
 			&gyro_ema_filter_data, 0.01725);
 		#endif
+
+		led_on(LED2); //Turn on the LED after calculating the AHRS information
 
 		vTaskDelay(1);
 	}
