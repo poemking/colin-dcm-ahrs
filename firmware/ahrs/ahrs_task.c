@@ -14,7 +14,6 @@
 #include "delay.h"
 #include "vector_space.h"
 #include "moving_average.h"
-#include "ahrs.h"
 
 #define IMU_SMA_SAMPLING_CNT 400
 
@@ -23,8 +22,6 @@
 #define USE_EMA_FILTER 2
 
 #define IMU_FILTER USE_EMA_FILTER
-
-imu_data_t imu_data;
 
 /* IMU unscaled data */
 vector3d_16_t accel_unscaled_data, gyro_unscaled_data;
@@ -82,9 +79,6 @@ void ahrs_task()
 		#endif
 	}	
 
-	/* Set the Inertial Frame */
-	imu_data.accel_inertial_frame = accel_ema_filter_data;
-
 	while(1) {
 		led_off(LED2); //Turn off the LED before calculating the AHRS information
 
@@ -102,7 +96,7 @@ void ahrs_task()
 		/* filter the IMU raw data (Simple Moving Average filter) */
 		vector3d_simple_moving_average(accel_raw_data, accel_moving_average_fifo,
 			&accel_sma_filter_data, IMU_SMA_SAMPLING_CNT);
-`		vector3d_simple_moving_average(gyro_raw_data, gyro_moving_average_fifo,
+		vector3d_simple_moving_average(gyro_raw_data, gyro_moving_average_fifo,
 			&gyro_sma_filter_data, IMU_SMA_SAMPLING_CNT);
 		#endif
 

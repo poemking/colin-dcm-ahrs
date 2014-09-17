@@ -13,8 +13,6 @@ typedef struct {
 
 	vector3d_f_t accel_filtered_data;
 	vector3d_f_t gyro_filtered_data;
-
-	vector3d_f_t accel_inertial_frame;
 } imu_data_t;
 
 typedef struct {
