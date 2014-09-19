@@ -14,6 +14,13 @@
 #define LED2 GPIOC, GPIO_Pin_14
 #define LED3 GPIOC, GPIO_Pin_13
 
+/* Debug port, for work frequency measurement  */
+#define debug_port_off(port) GPIO_ResetBits(port)
+#define debug_port_on(port) GPIO_SetBits(port)
+
+#define DEBUG_PORT GPIOB, GPIO_Pin_6
+
 void led_init();
+void debug_port_init();
 
 #endif

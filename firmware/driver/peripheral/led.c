@@ -20,3 +20,18 @@ void led_init()
 	led_off(LED2);
 	led_off(LED3);
 }
+
+void debug_port_init()
+{
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+
+	GPIO_InitTypeDef GPIO_InitStruct = {
+		.GPIO_Pin = GPIO_Pin_6,
+		.GPIO_Mode = GPIO_Mode_OUT,
+		.GPIO_Speed = GPIO_Speed_50MHz,
+		.GPIO_OType = GPIO_OType_PP,
+		.GPIO_PuPd = GPIO_PuPd_DOWN
+	};
+
+	GPIO_Init(GPIOB, &GPIO_InitStruct);
+}

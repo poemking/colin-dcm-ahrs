@@ -81,6 +81,7 @@ void ahrs_task()
 
 	while(1) {
 		led_off(LED2); //Turn off the LED before calculating the AHRS information
+		debug_port_off(DEBUG_PORT);
 
 		/* Get the new IMU unscaled raw data */
 		mpu6050_read_unscaled_data(&accel_unscaled_data, &gyro_unscaled_data);
@@ -117,6 +118,7 @@ void ahrs_task()
 		#endif
 
 		led_on(LED2); //Turn on the LED after calculating the AHRS information
+		debug_port_on(DEBUG_PORT);
 
 		vTaskDelay(1);
 	}
