@@ -7,6 +7,7 @@
 #include "usart.h"
 #include "i2c.h"
 #include "led.h"
+#include "timer.h"
 
 #include "mpu6050.h"
 
@@ -19,8 +20,10 @@ int main()
 {
 	/* Peripheral initialization */
 	led_init();
+	debug_port_init();
 	usart3_init(57600);
 	i2c1_init();
+	timer2_init();
 
 	//Make sure all the peripheral is finished the initialization
 	delay_ms(1000);

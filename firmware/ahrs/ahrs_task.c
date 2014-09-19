@@ -80,7 +80,7 @@ void ahrs_task()
 	}	
 
 	while(1) {
-		led_off(LED2); //Turn off the LED before calculating the AHRS information
+//		led_off(LED2); //Turn off the LED before calculating the AHRS information
 		debug_port_off(DEBUG_PORT);
 
 		/* Get the new IMU unscaled raw data */
@@ -118,8 +118,18 @@ void ahrs_task()
 		#endif
 
 		led_on(LED2); //Turn on the LED after calculating the AHRS information
-		debug_port_on(DEBUG_PORT);
+//		debug_port_on(DEBUG_PORT);
 
 		vTaskDelay(1);
+	}
+}
+
+void TIM2_IRQHandler()
+{
+	if(TIM_GetITStatus(TIM2, TIM_IT_Update) == SET) {
+		led_toggle(DEBUG_PORT);
+
+		/* Clear the timer counter */
+		TIM_ClearITPendingBit(TIM2, TIM_FLAG_Update);
 	}
 }
