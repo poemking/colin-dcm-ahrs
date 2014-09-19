@@ -39,6 +39,8 @@ vector3d_f_t accel_wma_filter_data, gyro_wma_filter_data;
 vector3d_f_t accel_ema_filter_data, gyro_ema_filter_data;
 #endif
 
+extern SemaphoreHandle_t ahrs_task_semaphore;
+
 void ahrs_task()
 {
 	#if (IMU_FILTER == USE_SMA_DATA) || (IMU_FILTER == USE_WMA_FILTER)
@@ -80,7 +82,9 @@ void ahrs_task()
 	}	
 
 	while(1) {
-//		led_off(LED2); //Turn off the LED before calculating the AHRS information
+		while(xSemaphoreTake(ahrs_task_semaphore, 1) == pdFALSE);
+
+		led_off(LED2); //Turn off the LED before calculating the AHRS information
 		debug_port_off(DEBUG_PORT);
 
 		/* Get the new IMU unscaled raw data */
@@ -118,7 +122,7 @@ void ahrs_task()
 		#endif
 
 		led_on(LED2); //Turn on the LED after calculating the AHRS information
-//		debug_port_on(DEBUG_PORT);
+		debug_port_on(DEBUG_PORT);
 
 		vTaskDelay(1);
 	}
@@ -127,7 +131,9 @@ void ahrs_task()
 void TIM2_IRQHandler()
 {
 	if(TIM_GetITStatus(TIM2, TIM_IT_Update) == SET) {
-		led_toggle(DEBUG_PORT);
+		BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
+		xSemaphoreGiveFromISR(ahrs_task_semaphore, &xHigherPriorityTaskWoken);
 
 		/* Clear the timer counter */
 		TIM_ClearITPendingBit(TIM2, TIM_FLAG_Update);

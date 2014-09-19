@@ -16,9 +16,15 @@
 #include "ahrs_task.h"
 #include "telemetry_task.h"
 
+SemaphoreHandle_t ahrs_task_semaphore;
+
 int main()
 {
+	/* Semaphore creation */
+	vSemaphoreCreateBinary(ahrs_task_semaphore);
+
 	/* Peripheral initialization */
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 	led_init();
 	debug_port_init();
 	usart3_init(57600);
