@@ -25,15 +25,15 @@ void usart_plot_task()
 		int payload_count = 0;
 
 		/* Convert the onboard parameter to the byte */
-		//Accelerator raw data
+		//Accelermeter raw data
 		payload_count += convert_vector3d_float_to_byte(&imu_data.accel_raw_data, payload + payload_count);
-		//Accelerator filter data
+		//Accelermeter filtered data
 		payload_count += convert_vector3d_float_to_byte(&imu_data.accel_filtered_data, payload + payload_count);
 		//Gyroscope raw data
 		payload_count += convert_vector3d_float_to_byte(&imu_data.gyro_raw_data, payload + payload_count);
-		//Gyroscope filter data
+		//Gyroscope filtered data
 		payload_count += convert_vector3d_float_to_byte(&imu_data.gyro_filtered_data, payload + payload_count);
-		//Attitude(from gyroscope)
+		//Attitude data (from gyroscope)
 		payload_count += convert_attitude_to_byte(&ahrs_data.gyro_attitude, payload + payload_count);
 
 		/* Send the onboard parameter */

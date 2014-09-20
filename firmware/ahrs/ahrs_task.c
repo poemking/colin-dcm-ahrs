@@ -17,7 +17,7 @@
 
 #include "ahrs.h"
 
-#define IMU_SMA_SAMPLING_CNT 400
+#define IMU_EMA_PREFILTER_CNT 400
 
 imu_data_t imu_data;
 ahrs_data_t ahrs_data;
@@ -26,16 +26,16 @@ extern SemaphoreHandle_t ahrs_task_semaphore;
 
 void ahrs_task()
 {
-	vector3d_f_t accel_ema_last_data, gyro_ema_last_data;
+	vector3d_f_t accel_ema_last_data, gyro_ema_last_data; //EMA last data
 
-	/* Prepare the first moving average filter data */
+	/* Prepare the first EMA filter data */
 	mpu6050_read_unscaled_data(&imu_data.accel_unscaled_data, &imu_data.gyro_unscaled_data);
 	mpu6050_accel_convert_to_scale(&imu_data.accel_unscaled_data, &accel_ema_last_data);
 	mpu6050_gyro_convert_to_scale(&imu_data.gyro_unscaled_data, &gyro_ema_last_data);
 
-	/* Prepare the Moving Average filter data */
+	/* Pre-filter the IMU data */
 	int i;
-	for(i = 0; i < IMU_SMA_SAMPLING_CNT; i++) {
+	for(i = 0; i < IMU_EMA_PREFILTER_CNT; i++) {
 		/* Filter the data with EMA filter (Make the filter stable) */
 		vector3d_exponential_moving_average(imu_data.accel_raw_data, &accel_ema_last_data,
 			&imu_data.accel_filtered_data, 0.01725);
