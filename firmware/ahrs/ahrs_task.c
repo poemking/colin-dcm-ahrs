@@ -15,6 +15,8 @@
 #include "vector_space.h"
 #include "moving_average.h"
 
+#include "ahrs.h"
+
 #define IMU_SMA_SAMPLING_CNT 400
 
 #define USE_SMA_FILTER 0
@@ -22,6 +24,8 @@
 #define USE_EMA_FILTER 2
 
 #define IMU_FILTER USE_EMA_FILTER
+
+ahrs_data_t ahrs_data;
 
 /* IMU unscaled data */
 vector3d_16_t accel_unscaled_data, gyro_unscaled_data;
@@ -120,6 +124,9 @@ void ahrs_task()
 		vector3d_exponential_moving_average(gyro_raw_data, &gyro_ema_last_data,
 			&gyro_ema_filter_data, 0.01725);
 		#endif
+
+		/* Get the euler angle from gyroscope by integrate the angle velocity */
+		gyro_integrate(&ahrs_data.gyro_attitude, gyro_ema_last_data, 0.002); //500hz, period = 0.02
 
 		led_on(LED2); //Turn on the LED after calculating the AHRS information
 		debug_port_on(DEBUG_PORT);
