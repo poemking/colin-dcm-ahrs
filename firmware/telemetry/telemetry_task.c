@@ -11,6 +11,10 @@
 
 #include "vector_space.h"
 
+#include "ahrs.h"
+
+extern ahrs_data_t ahrs_data;
+
 extern vector3d_f_t accel_raw_data, gyro_raw_data;
 extern vector3d_f_t accel_ema_filter_data, gyro_ema_filter_data;
 
@@ -31,12 +35,14 @@ void usart_plot_task()
 		payload_count += convert_vector3d_float_to_byte(&gyro_raw_data, payload + payload_count);
 		//Gyroscope filter data
 		payload_count += convert_vector3d_float_to_byte(&gyro_ema_filter_data, payload + payload_count);
+		//Attitude(from gyroscope)
+		payload_count += convert_attitude_to_byte(&ahrs_data.gyro_attitude, payload + payload_count);
 
 		/* Send the onboard parameter */
 		send_onboard_parameter(payload, payload_count);
 
 		led_on(LED3); //Turn on the LED after the transmission
 
-		vTaskDelay(1);
+		vTaskDelay(10);
 	}
 }
