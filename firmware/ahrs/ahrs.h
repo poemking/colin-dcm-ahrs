@@ -5,8 +5,8 @@
 
 /* IMU management structure */
 typedef struct {
-	vector3d_f_t accel_unscaled_data;
-	vector3d_f_t gyro_unscaled_data;
+	vector3d_16_t accel_unscaled_data;
+	vector3d_16_t gyro_unscaled_data;
 
 	vector3d_f_t accel_raw_data;
 	vector3d_f_t gyro_raw_data;
