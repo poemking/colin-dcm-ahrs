@@ -13,10 +13,8 @@
 
 #include "ahrs.h"
 
+extern imu_data_t imu_data;
 extern ahrs_data_t ahrs_data;
-
-extern vector3d_f_t accel_raw_data, gyro_raw_data;
-extern vector3d_f_t accel_ema_filter_data, gyro_ema_filter_data;
 
 void usart_plot_task()
 {
@@ -28,13 +26,13 @@ void usart_plot_task()
 
 		/* Convert the onboard parameter to the byte */
 		//Accelerator raw data
-		payload_count += convert_vector3d_float_to_byte(&accel_raw_data, payload + payload_count);
+		payload_count += convert_vector3d_float_to_byte(&imu_data.accel_raw_data, payload + payload_count);
 		//Accelerator filter data
-		payload_count += convert_vector3d_float_to_byte(&accel_ema_filter_data, payload + payload_count);
+		payload_count += convert_vector3d_float_to_byte(&imu_data.accel_filtered_data, payload + payload_count);
 		//Gyroscope raw data
-		payload_count += convert_vector3d_float_to_byte(&gyro_raw_data, payload + payload_count);
+		payload_count += convert_vector3d_float_to_byte(&imu_data.gyro_raw_data, payload + payload_count);
 		//Gyroscope filter data
-		payload_count += convert_vector3d_float_to_byte(&gyro_ema_filter_data, payload + payload_count);
+		payload_count += convert_vector3d_float_to_byte(&imu_data.gyro_filtered_data, payload + payload_count);
 		//Attitude(from gyroscope)
 		payload_count += convert_attitude_to_byte(&ahrs_data.gyro_attitude, payload + payload_count);
 
