@@ -131,7 +131,7 @@ void ahrs_task()
 		#endif
 
 		/* Get the euler angle from gyroscope by integrate the angle velocity */
-		gyro_integrate(&ahrs_data.gyro_attitude, gyro_ema_last_data, 0.002); //500hz, period = 0.02
+		gyro_integrate(&ahrs_data.gyro_attitude, gyro_ema_filter_data, 0.002); //500hz, period = 0.02
 
 		led_on(LED2); //Turn on the LED after calculating the AHRS information
 		debug_port_on(DEBUG_PORT);
