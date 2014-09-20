@@ -52,6 +52,11 @@ void ahrs_task()
 	vector3d_f_t gyro_moving_average_fifo[IMU_SMA_SAMPLING_CNT];
 	#elif IMU_FILTER == USE_EMA_FILTER
 	vector3d_f_t accel_ema_last_data, gyro_ema_last_data;
+
+	/* Prepare the first moving average filter data */
+	mpu6050_read_unscaled_data(&accel_unscaled_data, &gyro_unscaled_data);
+	mpu6050_accel_convert_to_scale(&accel_unscaled_data, &accel_ema_last_data);
+	mpu6050_gyro_convert_to_scale(&gyro_unscaled_data, &gyro_ema_last_data);
 	#endif
 
 	/* Prepare the Moving Average filter data */
