@@ -21,19 +21,21 @@ void gyro_integrate(attitude_t *attitude, vector3d_f_t gyro_scaled_data,
 {
 	/* Convert the body frame(sensor frame) back to the inertial frame */
 	vector3d_f_t iframe_gyro;
-	//x' = x + cos(roll)tan(pitch)z + sin(roll)tan(pitch)y
-	iframe_gyro.x = 
-		gyro_scaled_data.x +
-		cos(deg_to_rad(attitude->roll_angle)) * tan(deg_to_rad(attitude->pitch_angle)) * gyro_scaled_data.z +
-		sin(deg_to_rad(attitude->roll_angle)) * tan(deg_to_rad(attitude->pitch_angle)) * gyro_scaled_data.y;
-	//y' = cos(pitch)y - sin(roll)z
+
+
+	//x' = cos(pitch)x - sin(pitch)z
+	iframe_gyro.x =
+		cos(deg_to_rad(attitude->pitch_angle)) * gyro_scaled_data.x -
+		sin(deg_to_rad(attitude->pitch_angle)) * gyro_scaled_data.z;
+	//y' = sin(pitch)tan(roll)x + y + cos(pitch)tan(roll)z
 	iframe_gyro.y =
-		cos(deg_to_rad(attitude->pitch_angle)) * gyro_scaled_data.y -
-		sin(deg_to_rad(attitude->roll_angle)) * gyro_scaled_data.z;
-	//z' = cos(roll)sec(pitch)z + sin(roll)sec(pitch)y
+		sin(deg_to_rad(attitude->pitch_angle)) * tan(deg_to_rad(attitude->roll_angle)) * gyro_scaled_data.x +
+		gyro_scaled_data.y +
+		cos(deg_to_rad(attitude->pitch_angle)) * tan(deg_to_rad(attitude->roll_angle)) * gyro_scaled_data.z;
+	//z' = sec(roll)sin(pitch)x + cos(pitch)sec(roll)z
 	iframe_gyro.z =
-		cos(deg_to_rad(attitude->roll_angle)) * (1 / cos(deg_to_rad(attitude->pitch_angle))) * gyro_scaled_data.z +
-		sin(deg_to_rad(attitude->roll_angle)) * (1 / cos(deg_to_rad(attitude->pitch_angle))) * gyro_scaled_data.y;
+		(1 / cos(deg_to_rad(attitude->roll_angle))) * sin(deg_to_rad(attitude->pitch_angle)) *  gyro_scaled_data.x +
+		cos(deg_to_rad(attitude->pitch_angle)) * (1 / cos(deg_to_rad(attitude->roll_angle))) * gyro_scaled_data.z;
 
 	/* Intergrate the angle velocity */
 	attitude->roll_angle += iframe_gyro.x * period_time;
