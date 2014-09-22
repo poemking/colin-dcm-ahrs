@@ -65,7 +65,10 @@ void ahrs_task()
 		vector3d_exponential_moving_average(imu_data.gyro_raw_data, &gyro_ema_last_data,
 			&imu_data.gyro_filtered_data, 0.01725);
 
-		/* Get the euler angle from gyroscope by integrate the angle velocity */
+		/* Attitude estimation */
+		//Get the euler angle from accelerometer by taking gravity as reference
+		accel_estimate_euler_angle(&ahrs_data.accel_attitude, imu_data.accel_filtered_data);
+		//Get the euler angle from gyroscope by integrate the angle velocity
 		gyro_integrate(&ahrs_data.gyro_attitude, imu_data.gyro_filtered_data, 0.002); //500hz, period = 0.02
 
 		led_on(LED2); //Turn on the LED after calculating the AHRS information
