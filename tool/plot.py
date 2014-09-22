@@ -55,7 +55,7 @@ class AnalogPlot:
 		self.line_numbers = []
 
 	def set_figure(self):		
-		plt.subplot(311)
+		plt.subplot(411)
 		plt.ylabel('Acceleration (g)')
 		plt.ylim([-1.0, 2.0])
 		self.create_line('x axis (raw data)', 'red')		
@@ -67,7 +67,7 @@ class AnalogPlot:
 		self.create_line('z axis (filter data)', 'purple')		
 		self.show_subplot()
 
-		plt.subplot(312)
+		plt.subplot(412)
 		plt.ylabel('Degree per second (dps)')
 		plt.ylim([-450, 450])
 		self.create_line('x axis (raw data)', 'red')		
@@ -78,7 +78,15 @@ class AnalogPlot:
 		self.create_line('z axis (filter data)', 'purple')		
 		self.show_subplot()
 
-		plt.subplot(313)
+		plt.subplot(413)
+		plt.ylabel('Attitude (degree)')
+		plt.ylim([-90, 90])
+		self.create_line('Roll (accelerometer)', 'red')		
+		self.create_line('Pitch (accelerometer)', 'blue')		
+		self.create_line('Yaw (accelerometer)', 'green')		
+		self.show_subplot()
+
+		plt.subplot(414)
 		plt.ylabel('Attitude (degree)')
 		plt.ylim([-90, 90])
 		self.create_line('Roll (gyroscope)', 'red')		
@@ -131,8 +139,8 @@ class AnalogPlot:
 		return 'success'
 
 #Analog plot
-analog_data = [AnalogData(200) for i in range(0, 15)]
-analog_plot = AnalogPlot(15, analog_data)
+analog_data = [AnalogData(200) for i in range(0, 18)]
+analog_plot = AnalogPlot(18, analog_data)
 
 def read_argument():
 	parser = argparse.ArgumentParser()
@@ -153,7 +161,7 @@ def read_argument():
 	if args.line != -1:
 		analog_plot.set_show_line(args.line)
 	else:
-		analog_plot.set_show_line([i for i in range(0, 15)])
+		analog_plot.set_show_line([i for i in range(0, 18)])
 
 class SerialReadThread(threading.Thread):
 	def run(self):
