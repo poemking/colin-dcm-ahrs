@@ -45,6 +45,7 @@ void gyro_integrate(attitude_t *attitude, vector3d_f_t gyro_scaled_data,
 
 void gyro_error_eliminate(attitude_t *gyro_attitude, attitude_t accel_attitude, float tau)
 {
+	//alpha = tau / (tau + error)
 	float alpha_roll, alpha_pitch;
 
 	alpha_roll = tau / (tau + fabs(accel_attitude.roll_angle - gyro_attitude->roll_angle));
