@@ -38,9 +38,9 @@ void gyro_integrate(attitude_t *attitude, vector3d_f_t gyro_scaled_data,
 		cos(deg_to_rad(attitude->pitch_angle)) * (1 / cos(deg_to_rad(attitude->roll_angle))) * gyro_scaled_data.z;
 
 	/* Intergrate the angle velocity */
-	attitude->roll_angle += iframe_gyro.x * period_time;
-	attitude->pitch_angle += iframe_gyro.y * period_time;
-	attitude->yaw_angle += iframe_gyro.z * period_time;
+	attitude->roll_angle -= iframe_gyro.x * period_time;
+	attitude->pitch_angle -= iframe_gyro.y * period_time;
+	attitude->yaw_angle -= iframe_gyro.z * period_time;
 }
 
 void gyro_error_eliminate(attitude_t *gyro_attitude, attitude_t accel_attitude, float tau)
