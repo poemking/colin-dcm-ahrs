@@ -15,13 +15,14 @@
 
 extern imu_data_t imu_data;
 extern ahrs_data_t ahrs_data;
+extern float alpha_roll, alpha_pitch;
 
 void usart_plot_task()
 {
 	while(1) {
 		led_off(LED3); //Turn off the LED before the trasmission
 
-		uint8_t payload[256] = {'\0'}; //About 64 float variable
+		uint8_t payload[512] = {'\0'}; //About 64 float variable
 		int payload_count = 0;
 
 		/* Convert the onboard parameter to the byte */
@@ -37,6 +38,8 @@ void usart_plot_task()
 		payload_count += convert_attitude_to_byte(&ahrs_data.accel_attitude, payload + payload_count);
 		//Attitude data (from gyroscope)
 		payload_count += convert_attitude_to_byte(&ahrs_data.gyro_attitude, payload + payload_count);
+		payload_count += convert_float_to_byte(&alpha_roll, payload + payload_count);
+		payload_count += convert_float_to_byte(&alpha_pitch, payload + payload_count);
 
 		/* Send the onboard parameter */
 		send_onboard_parameter(payload, payload_count);
