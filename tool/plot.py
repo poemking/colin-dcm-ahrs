@@ -61,10 +61,10 @@ class AnalogPlot:
 		self.create_line('x axis (raw data)', 'red')		
 		self.create_line('y axis (raw data)', 'blue')		
 		self.create_line('z axis (raw data)', 'green')		
-		self.create_line('x axis (filter data)', 'orange')		
-		self.create_line('y axis (filter data)', 'yellow')	
+		self.create_line('x axis (filtered data)', 'orange')		
+		self.create_line('y axis (filtered data)', 'yellow')	
 	
-		self.create_line('z axis (filter data)', 'purple')		
+		self.create_line('z axis (filtered data)', 'purple')		
 		self.show_subplot()
 
 		plt.subplot(512)
@@ -73,9 +73,9 @@ class AnalogPlot:
 		self.create_line('x axis (raw data)', 'red')		
 		self.create_line('y axis (raw data)', 'blue')		
 		self.create_line('z axis (raw data)', 'green')		
-		self.create_line('x axis (filter data)', 'orange')		
-		self.create_line('y axis (filter data)', 'yellow')		
-		self.create_line('z axis (filter data)', 'purple')		
+		self.create_line('x axis (filtered data)', 'orange')		
+		self.create_line('y axis (filtered data)', 'yellow')		
+		self.create_line('z axis (filtered data)', 'purple')		
 		self.show_subplot()
 
 		plt.subplot(513)
@@ -98,7 +98,7 @@ class AnalogPlot:
 		plt.ylabel('Complementry filter')
 		plt.ylim([0.95, 1.05])
 		self.create_line('alpha (roll)', 'red')		
-		self.create_line('ahpha (pitch)', 'blue')		
+		self.create_line('alpha (pitch)', 'blue')		
 		self.show_subplot()
 
 	def set_show_line(self, line_numbers):
