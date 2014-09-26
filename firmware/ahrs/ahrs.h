@@ -32,6 +32,7 @@ typedef struct {
 void accel_estimate_euler_angle(attitude_t *attitude, vector3d_f_t accel_scaled_data);
 void gyro_integrate(attitude_t *attitude, vector3d_f_t gyro_scaled_data, float period_time);
 
-void gyro_error_eliminate(attitude_t *gyro_attitude, attitude_t accel_attitude, float tau);
+void gyro_error_eliminate(attitude_t *gyro_attitude, attitude_t accel_attitude, float error_const,
+	vector3d_f_t gyro_scaled_data, float angle_velocity_const);
 
 #endif

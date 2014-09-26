@@ -43,14 +43,25 @@ void gyro_integrate(attitude_t *attitude, vector3d_f_t gyro_scaled_data,
 	attitude->yaw_angle -= iframe_gyro.z * period_time;
 }
 
-void gyro_error_eliminate(attitude_t *gyro_attitude, attitude_t accel_attitude, float tau)
+float alpha_roll, alpha_pitch;
+
+void gyro_error_eliminate(attitude_t *gyro_attitude, attitude_t accel_attitude, float error_const,
+	vector3d_f_t gyro_scaled_data, float angle_velocity_const)
 {
-	//alpha = tau / (tau + error)
-	float alpha_roll, alpha_pitch;
+	//float alpha_roll, alpha_pitch;
+	float beta_roll, beta_pitch;
 
-	alpha_roll = tau / (tau + fabs(accel_attitude.roll_angle - gyro_attitude->roll_angle));
-	alpha_pitch = tau / (tau + fabs(accel_attitude.pitch_angle - gyro_attitude->pitch_angle));
+	//beta = angle_velocity_const / (angle_velocity_const + gyro_scaled_data)
+	beta_roll = angle_velocity_const / (angle_velocity_const + fabs(gyro_scaled_data.x));
+	beta_pitch = angle_velocity_const / (angle_velocity_const + fabs(gyro_scaled_data.y));
 
+	//alpha = error_const / (error_const + error * beta)
+	alpha_roll =
+		error_const / (error_const + fabs(accel_attitude.roll_angle - gyro_attitude->roll_angle) * beta_roll);
+	alpha_pitch =
+		error_const / (error_const + fabs(accel_attitude.pitch_angle - gyro_attitude->pitch_angle) * beta_pitch);
+
+	//Complementry filter
 	gyro_attitude->roll_angle =
 		(alpha_roll * gyro_attitude->roll_angle) + ((1 - alpha_roll) * accel_attitude.roll_angle);
 	gyro_attitude->pitch_angle =
