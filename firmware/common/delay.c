@@ -1,7 +1,7 @@
 #include <stdint.h>
 
 #define STM32_CLOCK_HZ 168000000UL
-#define STM32_CYCLES_PER_LOOP 6 // This will need tweaking or calculating
+#define STM32_CYCLES_PER_LOOP 2400 // This will need tweaking or calculating
 
 void delay_ms(uint32_t ms)
 {
