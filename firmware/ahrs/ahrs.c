@@ -1,5 +1,7 @@
 #include <math.h>
 
+#include "fast_arc_trigonometry.h"
+
 #include "vector_space.h"
 #include "ahrs.h"
 
@@ -9,9 +11,9 @@
 void accel_estimate_euler_angle(attitude_t *attitude, vector3d_f_t accel_scaled_data)
 {
 	//roll = arcsin(y)
-	attitude->roll_angle = rad_to_deg(asin(-accel_scaled_data.y));
+	attitude->roll_angle = rad_to_deg(fast_asin(-accel_scaled_data.y));
 	//pitch = arcsin(x / cos(pitch))	
-	attitude->pitch_angle = rad_to_deg(asin(accel_scaled_data.x / cos(deg_to_rad(attitude->roll_angle))));
+	attitude->pitch_angle = rad_to_deg(fast_asin(accel_scaled_data.x / cos(deg_to_rad(attitude->roll_angle))));
 	//Accelerometer can't measure the yaw angle
 	attitude->yaw_angle = 0;
 }
