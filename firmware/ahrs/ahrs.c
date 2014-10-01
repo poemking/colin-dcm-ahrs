@@ -8,12 +8,10 @@
 
 void accel_estimate_euler_angle(attitude_t *attitude, vector3d_f_t accel_scaled_data)
 {
-	/* Use math function "atan2" to get the angle between the range +-180 degrees */
-
-	//roll = arctan(y / z) //Use math function "atan2" to get the angle between the range +-180 degrees
-	attitude->roll_angle = rad_to_deg(atan2(accel_scaled_data.y, accel_scaled_data.z));
-	//pitch = arcsin(-x) //Gimbal lock if the angle is greater than 90 degrees
-	attitude->pitch_angle = rad_to_deg(asin(-accel_scaled_data.x));
+	//roll = arcsin(y)
+	attitude->roll_angle = rad_to_deg(asin(-accel_scaled_data.y));
+	//pitch = arcsin(x / cos(pitch))	
+	attitude->pitch_angle = rad_to_deg(asin(accel_scaled_data.x / cos(deg_to_rad(attitude->roll_angle))));
 	//Accelerometer can't measure the yaw angle
 	attitude->yaw_angle = 0;
 }
