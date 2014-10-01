@@ -84,7 +84,9 @@ SRC+=$(FREERTOS)/Source/croutine.c \
 CFLAGS+=-I$(COMMON)
 SRC+=$(COMMON)/stdlib.c \
 	$(COMMON)/string.c \
-	$(COMMON)/delay.c
+	$(COMMON)/delay.c \
+	$(COMMON)/fast_arc_trigonometry.c
+
 
 CFLAGS+=-I$(DRIVER)/peripheral/
 SRC+=$(DRIVER)/peripheral/usart.c \
@@ -99,7 +101,7 @@ CFLAGS+=-I$(AHRS)
 SRC+=$(AHRS)/main.c \
 	$(AHRS)/moving_average.c \
 	$(AHRS)/ahrs.c \
-	$(AHRS)/ahrs_task.c
+	$(AHRS)/ahrs_task.c \
 
 CFLAGS+=-I$(TELEMETRY)
 SRC+=$(TELEMETRY)/telemetry.c \
