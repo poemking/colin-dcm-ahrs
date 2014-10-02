@@ -19,7 +19,7 @@ void accel_estimate_euler_angle(attitude_t *attitude, vector3d_f_t accel_scaled_
 	float normalized_y = accel_scaled_data.y / magnitude;
 	float normalized_z = accel_scaled_data.z / magnitude;
 
-	//roll = arctan(y / z)
+	//roll = arctan(-y / z)
 	attitude->roll_angle = rad_to_deg(atan(-normalized_y / normalized_z));
 	//pitch = arctan(x / z)
 	attitude->pitch_angle = rad_to_deg(atan(normalized_x / normalized_z));
