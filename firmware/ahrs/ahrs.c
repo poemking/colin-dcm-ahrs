@@ -62,9 +62,8 @@ void gyro_error_eliminate(attitude_t *gyro_attitude, attitude_t accel_attitude, 
 	//float alpha_roll, alpha_pitch;
 	float beta_roll, beta_pitch;
 
-	//beta = angle_velocity_const / (angle_velocity_const + gyro_scaled_data)
-	beta_roll = angle_velocity_const / (angle_velocity_const + fabs(gyro_scaled_data.x));
-	beta_pitch = angle_velocity_const / (angle_velocity_const + fabs(gyro_scaled_data.y));
+	beta_roll = 1;
+	beta_pitch = 1;
 
 	//alpha = error_const / (error_const + error * beta)
 	alpha_roll =
