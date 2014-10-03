@@ -57,19 +57,23 @@ void gyro_integrate(attitude_t *attitude, vector3d_f_t gyro_scaled_data,
 float alpha_roll, alpha_pitch;
 
 void gyro_error_eliminate(attitude_t *gyro_attitude, attitude_t accel_attitude, float error_const,
-	vector3d_f_t gyro_scaled_data, float angle_velocity_const)
+	vector3d_f_t accel_scaled_data, float accel_svm_const)
 {
 	//float alpha_roll, alpha_pitch;
-	float beta_roll, beta_pitch;
+	float beta;
 
-	beta_roll = 1;
-	beta_pitch = 1;
+	/* Use SVM(Signal Vector Magnitude) to determine the reliablilty of accelerometer */
+	float accel_svm_value = sqrtf(accel_scaled_data.x * accel_scaled_data.x +
+		accel_scaled_data.y * accel_scaled_data.y +
+		accel_scaled_data.z * accel_scaled_data.z);
+	//beta = accel_svm_const / (accel_svm_const + accel_svm_value)
+	beta = accel_svm_const / (accel_svm_const + accel_svm_value);
 
 	//alpha = error_const / (error_const + error * beta)
 	alpha_roll =
-		error_const / (error_const + fabs(accel_attitude.roll_angle - gyro_attitude->roll_angle) * beta_roll);
+		error_const / (error_const + fabs(accel_attitude.roll_angle - gyro_attitude->roll_angle) * beta);
 	alpha_pitch =
-		error_const / (error_const + fabs(accel_attitude.pitch_angle - gyro_attitude->pitch_angle) * beta_pitch);
+		error_const / (error_const + fabs(accel_attitude.pitch_angle - gyro_attitude->pitch_angle) * beta);
 
 	//Complementry filter
 	gyro_attitude->roll_angle =
