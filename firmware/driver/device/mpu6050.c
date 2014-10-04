@@ -12,8 +12,6 @@
 #define MPU6050_ACCEL_SCALE MPU6050A_4g
 #define MPU6050_GYRO_SCALE MPU6050G_2000dps
 
-#define CALIBRATE_SAMPLING_COUNT 10000
-
 /* You should calibrate these values by yourself */
 vector3d_16_t mpu6050_accel_error_bias = {40, -54, 217};
 vector3d_16_t mpu6050_gyro_error_bias  = {-11, -31, -28};
