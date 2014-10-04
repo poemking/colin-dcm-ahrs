@@ -72,7 +72,7 @@ void ahrs_task()
 		gyro_integrate(&ahrs_data.gyro_attitude, imu_data.gyro_filtered_data, 0.002); //500hz, period = 0.02
 
 		/* Take accelerometer as reference to fix the gyroscope integrate error accumulation */
-		gyro_error_eliminate(&ahrs_data.gyro_attitude, ahrs_data.accel_attitude, 2,
+		gyro_error_eliminate(&ahrs_data.gyro_attitude, ahrs_data.accel_attitude, 0.1,
 			imu_data.accel_filtered_data, 0.0001);
 
 		led_on(LED2); //Turn on the LED after calculating the AHRS information
