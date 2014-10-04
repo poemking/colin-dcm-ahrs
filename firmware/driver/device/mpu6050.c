@@ -14,8 +14,9 @@
 
 #define CALIBRATE_SAMPLING_COUNT 10000
 
-vector3d_16_t mpu6050_accel_offset;
-vector3d_16_t mpu6050_gyro_offset;
+/* You should calibrate these values by yourself */
+vector3d_16_t mpu6050_accel_error_bias = {40, -54, 217};
+vector3d_16_t mpu6050_gyro_error_bias  = {-11, -31, -28};
 
 static void mpu6050_read(uint8_t register_adress, uint8_t *data, int data_count)
 {
@@ -68,40 +69,7 @@ int mpu6050_init()
 
 	delay_ms(1000);
 
-	/* Calibrate the device */
-	mpu6050_calibrate();
-
 	return 0;
-}
-
-void mpu6050_calibrate()
-{
-	vector3d_f_t accel_average_cache;
-	vector3d_f_t gyro_average_cache;
-	vector3d_16_t accel_new_sampling_data;
-	vector3d_16_t gyro_new_sampling_data;
-
-	/* Calculate the average */
-	int i;
-	for(i = 0; i < CALIBRATE_SAMPLING_COUNT; i++) {
-		mpu6050_read_unscaled_data(&accel_new_sampling_data, &gyro_new_sampling_data);
- 
-		accel_average_cache.x += (float)accel_new_sampling_data.x / CALIBRATE_SAMPLING_COUNT;	
-		accel_average_cache.y += (float)accel_new_sampling_data.y / CALIBRATE_SAMPLING_COUNT;	
-		accel_average_cache.z += (float)accel_new_sampling_data.z / CALIBRATE_SAMPLING_COUNT;	
-		gyro_average_cache.x += (float)gyro_new_sampling_data.x / CALIBRATE_SAMPLING_COUNT;
-		gyro_average_cache.y += (float)gyro_new_sampling_data.y / CALIBRATE_SAMPLING_COUNT;
-		gyro_average_cache.z += (float)gyro_new_sampling_data.z / CALIBRATE_SAMPLING_COUNT;
-	}
-
-	//Accelerator should boe (0, 0, g) while doing the calibration
-	mpu6050_accel_offset.x = (int16_t)accel_average_cache.x - 0;
-	mpu6050_accel_offset.y = (int16_t)accel_average_cache.y - 0;
-	mpu6050_accel_offset.z = (int16_t)accel_average_cache.z - 8192;
-	//Gyroscope should be (0, 0, 0) while doing the calibration
-	mpu6050_gyro_offset.x = (int16_t)gyro_average_cache.x - 0;
-	mpu6050_gyro_offset.y = (int16_t)gyro_average_cache.y - 0;
-	mpu6050_gyro_offset.z = (int16_t)gyro_average_cache.z - 0;
 }
 
 void mpu6050_read_unscaled_data(vector3d_16_t *accel_raw_data, vector3d_16_t *gyro_raw_data)
@@ -123,12 +91,12 @@ void mpu6050_fix_bias(vector3d_16_t *accel_unscaled_data,
 	vector3d_16_t *gyro_unscaled_data)
 {
 	/* Fix the sensor bias */
-	accel_unscaled_data->x -= mpu6050_accel_offset.x;
-	accel_unscaled_data->y -= mpu6050_accel_offset.y;
-	accel_unscaled_data->z -= mpu6050_accel_offset.z;
-	gyro_unscaled_data->x -= mpu6050_gyro_offset.x;
-	gyro_unscaled_data->y -= mpu6050_gyro_offset.y;
-	gyro_unscaled_data->z -= mpu6050_gyro_offset.z;
+	accel_unscaled_data->x -= mpu6050_accel_error_bias.x;
+	accel_unscaled_data->y -= mpu6050_accel_error_bias.y;
+	accel_unscaled_data->z -= mpu6050_accel_error_bias.z;
+	gyro_unscaled_data->x -= mpu6050_gyro_error_bias.x;
+	gyro_unscaled_data->y -= mpu6050_gyro_error_bias.y;
+	gyro_unscaled_data->z -= mpu6050_gyro_error_bias.z;
 }
 
 void mpu6050_accel_convert_to_scale(vector3d_16_t *accel_unscaled_data,
