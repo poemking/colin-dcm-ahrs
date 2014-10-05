@@ -10,7 +10,7 @@
 
 void accel_estimate_euler_angle(attitude_t *attitude, vector3d_f_t accel_scaled_data)
 {
-	/* Normalize the data (unit vector) */
+	/* Calculate the vector magnitude  */
 	float magnitude = sqrtf(accel_scaled_data.x * accel_scaled_data.x +
 		accel_scaled_data.y * accel_scaled_data.y +
 		accel_scaled_data.z * accel_scaled_data.z);
@@ -21,7 +21,7 @@ void accel_estimate_euler_angle(attitude_t *attitude, vector3d_f_t accel_scaled_
 	if(accel_scaled_data.y > 1.0) accel_scaled_data.y = 1.0;
 	if(accel_scaled_data.z > 1.0) accel_scaled_data.z = 1.0;
 
-
+	/* Normalize the data (unit vector) */
 	float normalized_x = accel_scaled_data.x / magnitude;
 	float normalized_y = accel_scaled_data.y / magnitude;
 	float normalized_z = accel_scaled_data.z / magnitude;
@@ -70,12 +70,11 @@ void gyro_error_eliminate(attitude_t *gyro_attitude, attitude_t accel_attitude, 
 	float beta;
 
 	/* Use SVM(Signal Vector Magnitude) to determine the reliablilty of accelerometer */
-
 	float accel_sma_value = sqrtf(accel_scaled_data.x * accel_scaled_data.x +
 		accel_scaled_data.y * accel_scaled_data.y +
 		accel_scaled_data.z * accel_scaled_data.z);
 
-	//beta = accel_svm_const / (accel_svm_const + accel_sma_value)
+	//beta = accel_svm_const / accel_sma_value
 	beta = accel_svm_const / accel_sma_value;
 
 	//alpha = error_const / (error_const + error * beta)
