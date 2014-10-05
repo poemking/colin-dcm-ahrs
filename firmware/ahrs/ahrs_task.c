@@ -17,7 +17,8 @@
 
 #include "ahrs.h"
 
-#define IMU_EMA_PREFILTER_CNT 400
+//the pre-filter times count is depend on ema alpha value
+#define IMU_EMA_PREFILTER_CNT 200
 
 imu_data_t imu_data;
 ahrs_data_t ahrs_data;
@@ -30,18 +31,25 @@ void ahrs_task()
 
 	/* Prepare the first EMA filter data */
 	mpu6050_read_unscaled_data(&imu_data.accel_unscaled_data, &imu_data.gyro_unscaled_data);
+	mpu6050_fix_bias(&imu_data.accel_unscaled_data, &imu_data.gyro_unscaled_data);
 	mpu6050_accel_convert_to_scale(&imu_data.accel_unscaled_data, &accel_ema_last_data);
 	mpu6050_gyro_convert_to_scale(&imu_data.gyro_unscaled_data, &gyro_ema_last_data);
 
 	/* Pre-filter the IMU data */
 	int i;
 	for(i = 0; i < IMU_EMA_PREFILTER_CNT; i++) {
+		/* New sampling data */
+		mpu6050_read_unscaled_data(&imu_data.accel_unscaled_data, &imu_data.gyro_unscaled_data);
+		mpu6050_fix_bias(&imu_data.accel_unscaled_data, &imu_data.gyro_unscaled_data);
+		mpu6050_accel_convert_to_scale(&imu_data.accel_unscaled_data, &imu_data.accel_raw_data);
+		mpu6050_gyro_convert_to_scale(&imu_data.gyro_unscaled_data, &imu_data.gyro_raw_data);
+
 		/* Filter the data with EMA filter (Make the filter stable) */
 		vector3d_exponential_moving_average(imu_data.accel_raw_data, &accel_ema_last_data,
 			&imu_data.accel_filtered_data, 0.01725);
 		vector3d_exponential_moving_average(imu_data.gyro_raw_data, &gyro_ema_last_data,
 			&imu_data.gyro_filtered_data, 0.01725);
-	}	
+	}
 
 	while(1) {
 		while(xSemaphoreTake(ahrs_task_semaphore, 1) == pdFALSE);
