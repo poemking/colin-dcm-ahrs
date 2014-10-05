@@ -1,7 +1,5 @@
 #include <math.h>
 
-#include "fast_arc_trigonometry.h"
-
 #include "vector_space.h"
 #include "ahrs.h"
 
