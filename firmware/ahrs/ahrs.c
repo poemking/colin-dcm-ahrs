@@ -15,6 +15,13 @@ void accel_estimate_euler_angle(attitude_t *attitude, vector3d_f_t accel_scaled_
 		accel_scaled_data.y * accel_scaled_data.y +
 		accel_scaled_data.z * accel_scaled_data.z);
 
+	/* Acceleration boundary (Just need 1g for estimate the euler angle), cut off the
+	   non-gravity acceleration */
+	if(accel_scaled_data.x > 1.0) accel_scaled_data.x = 1.0;
+	if(accel_scaled_data.y > 1.0) accel_scaled_data.y = 1.0;
+	if(accel_scaled_data.z > 1.0) accel_scaled_data.z = 1.0;
+
+
 	float normalized_x = accel_scaled_data.x / magnitude;
 	float normalized_y = accel_scaled_data.y / magnitude;
 	float normalized_z = accel_scaled_data.z / magnitude;
