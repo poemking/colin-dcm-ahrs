@@ -27,7 +27,8 @@ extern SemaphoreHandle_t ahrs_task_semaphore;
 
 void ahrs_task()
 {
-	vector3d_f_t accel_ema_last_data, gyro_ema_last_data; //EMA last data
+	/* AHRS initialization */
+	vector3d_f_t accel_ema_last_data, gyro_ema_last_data; //buffer of EMA last data
 
 	/* Prepare the first EMA filter data */
 	mpu6050_read_unscaled_data(&imu_data.accel_unscaled_data, &imu_data.gyro_unscaled_data);
@@ -51,6 +52,11 @@ void ahrs_task()
 			&imu_data.gyro_filtered_data, 0.01725);
 	}
 
+	/* Initialize the gyroscope euler angle with accelerometer */
+	accel_estimate_euler_angle(&ahrs_data.accel_attitude, imu_data.accel_filtered_data);
+	ahrs_data.gyro_attitude = ahrs_data.accel_attitude;
+
+	/* AHRS main procedure */
 	while(1) {
 		while(xSemaphoreTake(ahrs_task_semaphore, 1) == pdFALSE);
 
