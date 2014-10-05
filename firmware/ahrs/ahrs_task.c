@@ -17,7 +17,7 @@
 
 #include "ahrs.h"
 
-//the pre-filter times count is depend on ema alpha value
+//The pre-filter times count is depend on EMA filter's alpha value
 #define IMU_EMA_PREFILTER_CNT 200
 
 imu_data_t imu_data;
