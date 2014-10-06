@@ -75,7 +75,7 @@ void gyro_error_eliminate(attitude_t *gyro_attitude, attitude_t accel_attitude, 
 	//beta = accel_svm_const / accel_sma_value
 	beta = accel_svm_const / accel_sma_value;
 
-	//alpha = error_const / (error_const + error * beta)
+	//alpha = (error_const / error_const + error) * beta
 	alpha_roll =
 		(error_const / (error_const + fabs(accel_attitude.roll_angle - gyro_attitude->roll_angle))) * beta;
 	alpha_pitch =
