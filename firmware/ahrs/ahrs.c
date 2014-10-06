@@ -67,7 +67,13 @@ void gyro_error_eliminate(attitude_t *gyro_attitude, attitude_t accel_attitude, 
 	//float alpha_roll, alpha_pitch;
 	float beta;
 
-        /* Use SVM(Signal Vector Magnitude) to determine the reliablilty of accelerometer */
+	/* Acceleration boundary (Just need 1g for estimate the euler angle), cut off the
+	   non-gravity acceleration */
+	if(accel_scaled_data.x > 1.0) accel_scaled_data.x = 1.0;
+	if(accel_scaled_data.y > 1.0) accel_scaled_data.y = 1.0;
+	if(accel_scaled_data.z > 1.0) accel_scaled_data.z = 1.0;
+
+        /* Use SVM (Signal Vector Magnitude) to determine the reliablilty of accelerometer */
 	float accel_sma_value = sqrtf(accel_scaled_data.x * accel_scaled_data.x +
 		accel_scaled_data.y * accel_scaled_data.y +
 		accel_scaled_data.z * accel_scaled_data.z);
