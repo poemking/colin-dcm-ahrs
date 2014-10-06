@@ -67,6 +67,11 @@ void gyro_error_eliminate(attitude_t *gyro_attitude, attitude_t accel_attitude, 
 	//float alpha_roll, alpha_pitch;
 	float beta;
 
+        /* Use SVM(Signal Vector Magnitude) to determine the reliablilty of accelerometer */
+	float accel_sma_value = sqrtf(accel_scaled_data.x * accel_scaled_data.x +
+		accel_scaled_data.y * accel_scaled_data.y +
+		accel_scaled_data.z * accel_scaled_data.z);
+
 	/* Use SVM(Signal Vector Magnitude) to determine the reliablilty of accelerometer */
 	float accel_sma_value = sqrtf(accel_scaled_data.x * accel_scaled_data.x +
 		accel_scaled_data.y * accel_scaled_data.y +
