@@ -8,11 +8,6 @@
 
 void accel_estimate_euler_angle(attitude_t *attitude, vector3d_f_t accel_scaled_data)
 {
-	/* Calculate the vector magnitude  */
-	float magnitude = sqrtf(accel_scaled_data.x * accel_scaled_data.x +
-		accel_scaled_data.y * accel_scaled_data.y +
-		accel_scaled_data.z * accel_scaled_data.z);
-
 	/* Acceleration boundary (Just need 1g for estimate the euler angle), cut off the
 	   non-gravity acceleration */
 	if(accel_scaled_data.x > 1.0) accel_scaled_data.x = 1.0;
@@ -21,6 +16,11 @@ void accel_estimate_euler_angle(attitude_t *attitude, vector3d_f_t accel_scaled_
 	if(accel_scaled_data.x < -1.0) accel_scaled_data.x = -1.0;
 	if(accel_scaled_data.y < -1.0) accel_scaled_data.y = -1.0;
 	if(accel_scaled_data.z < -1.0) accel_scaled_data.z = -1.0;
+
+	/* Calculate the vector magnitude  */
+	float magnitude = sqrtf(accel_scaled_data.x * accel_scaled_data.x +
+		accel_scaled_data.y * accel_scaled_data.y +
+		accel_scaled_data.z * accel_scaled_data.z);
 
 	/* Normalize the data (unit vector) */
 	float normalized_x = accel_scaled_data.x / magnitude;
