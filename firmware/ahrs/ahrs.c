@@ -18,6 +18,9 @@ void accel_estimate_euler_angle(attitude_t *attitude, vector3d_f_t accel_scaled_
 	if(accel_scaled_data.x > 1.0) accel_scaled_data.x = 1.0;
 	if(accel_scaled_data.y > 1.0) accel_scaled_data.y = 1.0;
 	if(accel_scaled_data.z > 1.0) accel_scaled_data.z = 1.0;
+	if(accel_scaled_data.x < -1.0) accel_scaled_data.x = -1.0;
+	if(accel_scaled_data.y < -1.0) accel_scaled_data.y = -1.0;
+	if(accel_scaled_data.z < -1.0) accel_scaled_data.z = -1.0;
 
 	/* Normalize the data (unit vector) */
 	float normalized_x = accel_scaled_data.x / magnitude;
@@ -67,6 +70,15 @@ void gyro_error_eliminate(attitude_t *gyro_attitude, attitude_t accel_attitude, 
 	//float alpha_roll, alpha_pitch;
 	float beta;
 
+        /* Acceleration boundary (Just need 1g for estimate the euler angle), cut off the
+           non-gravity acceleration */
+        if(accel_scaled_data.x > 1.0) accel_scaled_data.x = 1.0;
+        if(accel_scaled_data.y > 1.0) accel_scaled_data.y = 1.0;
+        if(accel_scaled_data.z > 1.0) accel_scaled_data.z = 1.0;
+        if(accel_scaled_data.x < -1.0) accel_scaled_data.x = -1.0;
+        if(accel_scaled_data.y < -1.0) accel_scaled_data.y = -1.0;
+        if(accel_scaled_data.z < -1.0) accel_scaled_data.z = -1.0;
+
 	/* Use SVM(Signal Vector Magnitude) to determine the reliablilty of accelerometer */
 	float accel_sma_value = sqrtf(accel_scaled_data.x * accel_scaled_data.x +
 		accel_scaled_data.y * accel_scaled_data.y +
@@ -83,7 +95,7 @@ void gyro_error_eliminate(attitude_t *gyro_attitude, attitude_t accel_attitude, 
 
 	//Complementry filter
 	gyro_attitude->roll_angle =
-		(alpha_roll * gyro_attitude->roll_angle) + ((1 - alpha_roll) * accel_attitude.roll_angle);
+		((alpha_roll) * accel_attitude.roll_angle) + ((1 - alpha_roll) * gyro_attitude->roll_angle);
 	gyro_attitude->pitch_angle =
-		(alpha_pitch * gyro_attitude->pitch_angle) + ((1 - alpha_pitch) * accel_attitude.pitch_angle);
+		((alpha_pitch) * accel_attitude.pitch_angle) + ((1 - alpha_pitch) * gyro_attitude->pitch_angle);
 }
