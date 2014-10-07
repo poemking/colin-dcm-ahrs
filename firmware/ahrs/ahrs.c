@@ -85,7 +85,10 @@ void gyro_error_eliminate(attitude_t *gyro_attitude, attitude_t accel_attitude, 
 		accel_scaled_data.z * accel_scaled_data.z);
 
 	//beta = accel_svm_const / accel_sma_value
-	beta = accel_svm_const / accel_sma_value;
+	if(accel_sma_value < 1)
+		beta = 1;
+	else 
+		beta = accel_svm_const / (accel_svm_const + (accel_sma_value - 1));
 
 	//alpha = (error_const / error_const + error) * beta
 	alpha_roll =
